@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,9 +15,22 @@ public class GameManager : MonoBehaviour
     private float startRenderMovesTime;
     private float renderMovesEffectTime = 2.0f;
     private float yResultOffset = 1.5f;
-    
     public GameObject moveBackgroundGood;
     public GameObject moveBackgroundBad;
+    private GameObject footParticle;
+    private int playerScore;
+    private int currentScore;
+    private int currentLastTurnScore;
+    private int playerLastTurnScore;
+    private int ai1Score;
+    private int ai2Score;
+    public GameObject playerScoreTopText;
+    //private bool playEffectScore = false;
+    public GameObject playerScore1stText;
+    public GameObject playerScore2ndText;
+    public GameObject playerScore3rdText;
+    private bool isAIChangedScore = false;
+
     void Awake()
     {
         instance = this;
@@ -36,6 +50,8 @@ public class GameManager : MonoBehaviour
         {
             CheckInputMove();
             StartRenderMovesEffect();
+            RenderTopScore();
+            RenderAIScore();
         }
     }
 
@@ -43,6 +59,9 @@ public class GameManager : MonoBehaviour
     {
         GetMove();
         RenderMove();
+
+        currentLastTurnScore = playerLastTurnScore = currentScore = playerScore = ai1Score = ai2Score = 0;
+        footParticle = GameObject.Find("FinishMove");
     }
 
     public void GetMove()
@@ -147,10 +166,10 @@ public class GameManager : MonoBehaviour
             }
 
             // Test music
-            if(currentMove > 0)
-            {
-                SoundManager.instance.PlayMusic();
-            }
+            //if(currentMove > 0)
+            //{
+            //    SoundManager.instance.PlayMusic();
+            //}
         }
 
         if(currentMove >= move.Count)
@@ -174,22 +193,30 @@ public class GameManager : MonoBehaviour
 
                 // Make player start to dance
                 GameObject player = GameObject.Find("Player2");
-                player.GetComponent<CharacterController>().Dance();
+                player.GetComponent<CharacterController>().Dance(score);
+                // hide particle at player foot
+                footParticle.SetActive(false);
 
-                // Test Control AI
-                AIController.instance.ControlAI(1, Random.Range((int)Animation.Dance, (int)Animation.Walk+1));
-                AIController.instance.ControlAI(2, Random.Range((int)Animation.Dance, (int)Animation.Walk+1));
-
-                // AI Score
+                // Random AI Score
                 int AI1Score = Random.Range(1, 100);
                 int AI2Score = Random.Range(1, 100);
+                // Control AI Dance
+                AIController.instance.ControlAIDance(1, AI1Score);
+                AIController.instance.ControlAIDance(2, AI2Score);
+                // Display AI Score
                 DisplayAIResult(AIController.instance.GetAIResultPos(1), AI1Score);
                 DisplayAIResult(AIController.instance.GetAIResultPos(2), AI2Score);
 
                 // Make a coroutine to start new move after 2 seconds
                 IEnumerator coroutine = StartNewMove(2.0f);
-                StartCoroutine(coroutine);        
+                StartCoroutine(coroutine);
 
+                // Increase score for players
+                playerLastTurnScore = score;
+                playerScore += score;
+                ai1Score += AI1Score;
+                ai2Score += AI2Score;
+                isAIChangedScore = true;
                 Debug.Log("PlayerMove: " + playerMoveList + " Result score: " + score + " AI1 score: " + AI1Score + " AI2 score: " + AI2Score);
             }
         }
@@ -206,7 +233,13 @@ public class GameManager : MonoBehaviour
             obj.gameObject.Kill();
         }
 
+        GameObject player = GameObject.Find("Player2");
         yield return new WaitForSeconds(delayTime);
+        
+        while(player.GetComponent<CharacterController>().IsDancing())
+        {
+            yield return new WaitForSeconds(0.1f); // wait until player dance is done
+        }
 
         // After delayTime -> reset game
         GameObject[] objsResultMoves = GameObject.FindGameObjectsWithTag("ResultMoves");
@@ -220,10 +253,6 @@ public class GameManager : MonoBehaviour
         GetMove();
         RenderMove();
 
-        // Set Player animation to Idle
-        GameObject player = GameObject.Find("Player2");
-        player.GetComponent<CharacterController>().Idle();
-
         // Stop AI animation
         AIController.instance.ControlAI(1, (int)Animation.Idle);
         AIController.instance.ControlAI(2, (int)Animation.Idle);
@@ -234,6 +263,9 @@ public class GameManager : MonoBehaviour
         {
             Destroy(obj);
         }
+
+        //show particle at player foot
+        footParticle.SetActive(true);
     }
 
     void StartRenderMovesEffect()
@@ -421,7 +453,8 @@ public class GameManager : MonoBehaviour
             {
                 GameObject spawnInstance = Instantiate(moveBackgroundGood);
                 spawnInstance.transform.SetParent(obj.transform);
-                spawnInstance.transform.position = obj.transform.position;
+                //spawnInstance.transform.position = obj.transform.position;
+                spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
                 spawnInstance.SetActive(true); 
             }
@@ -429,10 +462,111 @@ public class GameManager : MonoBehaviour
             {
                 GameObject spawnInstance = Instantiate(moveBackgroundBad);
                 spawnInstance.transform.SetParent(obj.transform);
-                spawnInstance.transform.position = obj.transform.position;
+                //spawnInstance.transform.position = obj.transform.position;
+                spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
                 spawnInstance.SetActive(true); 
             }
         }
+    }
+
+    void RenderTopScore()
+    {
+        /*
+        if(currentLastTurnScore != GetPlayerLastTurnScore())
+        {
+            if(currentLastTurnScore > GetPlayerLastTurnScore())
+                currentLastTurnScore--;
+            else
+                currentLastTurnScore++;
+            playEffectScore = true;
+        }
+
+        TextMeshProUGUI textmeshPro = playerScoreTopText.GetComponent<TextMeshProUGUI>();
+        if(textmeshPro != null)
+        {
+            textmeshPro.SetText("{0}", currentLastTurnScore);
+            if(playEffectScore)
+            {
+                playerScoreTopText.GetComponent<Animator>().Rebind();
+                playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
+                playEffectScore = false;
+            }
+        }
+        */
+
+        bool playEffectScore = false;
+        if(currentScore < GetPlayerScore())
+        {
+            currentScore++;
+            playEffectScore = true;
+        }
+
+        TextMeshProUGUI textmeshPro = playerScoreTopText.GetComponent<TextMeshProUGUI>();
+        if(textmeshPro != null)
+        {
+            textmeshPro.SetText("{0}", currentScore);
+            if(playEffectScore)
+            {
+                playerScoreTopText.GetComponent<Animator>().Rebind();
+                playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
+            }
+        }
+
+        TextMeshProUGUI textmesh1stPro = playerScore1stText.GetComponent<TextMeshProUGUI>();
+        if(textmesh1stPro != null)
+        {
+            textmesh1stPro.SetText("You: {0}", currentScore);
+            if(playEffectScore)
+            {
+                playerScore1stText.GetComponent<Animator>().Rebind();
+                playerScore1stText.GetComponent<Animator>().Play("ScorePlayer");
+                playEffectScore = false;
+            }
+        }
+    }
+
+    void RenderAIScore()
+    {
+        TextMeshProUGUI textmesh2ndPro = playerScore2ndText.GetComponent<TextMeshProUGUI>();
+        if(textmesh2ndPro != null)
+        {
+            textmesh2ndPro.SetText("AI1: {0}", GetAIScore(1));
+            if(isAIChangedScore)
+            {
+                playerScore2ndText.GetComponent<Animator>().Rebind();
+                playerScore2ndText.GetComponent<Animator>().Play("ScorePlayer");
+            }
+        }
+
+        TextMeshProUGUI textmesh3rdPro = playerScore3rdText.GetComponent<TextMeshProUGUI>();
+        if(textmesh3rdPro != null)
+        {
+            textmesh3rdPro.SetText("AI2: {0}", GetAIScore(2));
+            if(isAIChangedScore)
+            {
+                playerScore3rdText.GetComponent<Animator>().Rebind();
+                playerScore3rdText.GetComponent<Animator>().Play("ScorePlayer");
+                isAIChangedScore = false;
+            }
+        }
+    }
+
+    int GetPlayerLastTurnScore()
+    {
+        return playerLastTurnScore;
+    }
+
+    int GetPlayerScore()
+    {
+        return playerScore;
+    }
+
+    int GetAIScore(int index)
+    {
+        if(index == 1)
+            return ai1Score;
+        else
+            return ai2Score;
     }
 }
