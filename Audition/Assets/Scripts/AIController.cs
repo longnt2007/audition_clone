@@ -35,8 +35,20 @@ public class AIController : MonoBehaviour
         else if(state == 2)
             controlAI.GetComponent<CharacterController>().Walk();
         else
-            controlAI.GetComponent<CharacterController>().Idle();
+            controlAI.GetComponent<CharacterController>().Idle(true);
+    }
 
+    public void ControlAIDance(int index, int score)
+    {
+        GameObject controlAI;
+        if(index == 1)
+            controlAI = AIPlayer1.gameObject;
+        else if(index == 2)
+            controlAI = AIPlayer2.gameObject;
+        else
+            return;
+
+        controlAI.GetComponent<CharacterController>().Dance(score);
     }
 
     public Vector3 GetAIPosition(int index)
