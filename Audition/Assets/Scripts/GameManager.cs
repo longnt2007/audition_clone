@@ -175,8 +175,8 @@ public class GameManager : MonoBehaviour
                 AIController.instance.ControlAI(2, Random.Range((int)Animation.Dance, (int)Animation.Walk+1));
 
                 // AI Score
-                DisplayAIResult(AIController.instance.GetAIPosition(1), Random.Range(1, 100));
-                DisplayAIResult(AIController.instance.GetAIPosition(2), Random.Range(1, 100));
+                DisplayAIResult(AIController.instance.GetAIResultPos(1), Random.Range(1, 100));
+                DisplayAIResult(AIController.instance.GetAIResultPos(2), Random.Range(1, 100));
 
                 // Make a coroutine to start new move after 2 seconds
                 IEnumerator coroutine = StartNewMove(2.0f);
@@ -216,6 +216,13 @@ public class GameManager : MonoBehaviour
         // Stop AI animation
         AIController.instance.ControlAI(1, (int)Animation.Idle);
         AIController.instance.ControlAI(2, (int)Animation.Idle);
+
+        // Destroy AI Result objects
+        GameObject[] objsAIResult = GameObject.FindGameObjectsWithTag("AIResult");
+        foreach (GameObject obj in objsAIResult)
+        {
+            Destroy(obj);
+        }
     }
 
     void StartRenderMovesEffect()
@@ -290,20 +297,29 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void DisplayAIResult(Vector3 pos, int score)
+    void DisplayAIResult(GameObject obj, int score)
     {
-        /*
-        GameObject result = GameObject.Find("Result_Good");
+        GameObject result;
+
+        if(score > 80)
+           result = GameObject.Find("Result_Perfect");
+        else if(score > 60)
+            result = GameObject.Find("Result_Good");
+        else if(score > 40)
+            result = GameObject.Find("Result_Cool");
+        else if(score > 20)
+            result = GameObject.Find("Result_Bad");
+        else
+            result = GameObject.Find("Result_Miss");
+
         if(result != null)
         {
             GameObject spawnInstance = Instantiate(result);
-            spawnInstance.transform.SetParent(result.transform);
-            spawnInstance.transform.position = pos;
+            spawnInstance.transform.SetParent(obj.transform);
+            //spawnInstance.name = "AIResult";
+            spawnInstance.tag = "AIResult";
             spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
-            spawnInstance.GetComponent<Animator>().Rebind();
-            spawnInstance.GetComponent<Animator>().Play("good");
         }
-        */
     }
 
     string ConvertMoveFromInt(int move)

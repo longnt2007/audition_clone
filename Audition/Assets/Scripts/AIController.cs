@@ -42,10 +42,27 @@ public class AIController : MonoBehaviour
     public Vector3 GetAIPosition(int index)
     {
         if(index == 1)
-            return AIPlayer1.gameObject.transform.position;
+            return GameObject.Find("AIPlayer1Pos").transform.position;
         else if(index == 2)
-            return AIPlayer2.gameObject.transform.position;
-
+            return GameObject.Find("AIPlayer2Pos").transform.position;
         return Vector3.zero;
+    }
+
+    public GameObject GetAICharacter(int index)
+    {
+        if(index == 1)
+            return GameObject.Find("AIPlayer1Pos");
+        else if(index == 2)
+            return GameObject.Find("AIPlayer2Pos");
+        return null;
+    }
+
+    public GameObject GetAIResultPos(int index)
+    {
+        if(index == 1)
+            return GameObject.Find("AIResult1Pos");
+        else if(index == 2)
+            return GameObject.Find("AIResult2Pos");
+        return null;
     }
 }
