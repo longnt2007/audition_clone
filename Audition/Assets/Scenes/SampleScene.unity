@@ -3147,6 +3147,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Score3rd
       objectReference: {fileID: 0}
+    - target: {fileID: 8649569222524507461, guid: df84225f1cb48bd4a9f6a647afae4e8c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: df84225f1cb48bd4a9f6a647afae4e8c, type: 3}
 --- !u!224 &2005970543 stripped

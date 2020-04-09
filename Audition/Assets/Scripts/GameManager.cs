@@ -192,15 +192,15 @@ public class GameManager : MonoBehaviour
 
                 // Make player start to dance
                 GameObject player = GameObject.Find("Player2");
-                player.GetComponent<CharacterController>().Dance();
+                player.GetComponent<CharacterController>().Dance(score);
 
-                // Test Control AI
-                AIController.instance.ControlAI(1, Random.Range((int)Animation.Dance, (int)Animation.Walk+1));
-                AIController.instance.ControlAI(2, Random.Range((int)Animation.Dance, (int)Animation.Walk+1));
-
-                // AI Score
+                // Random AI Score
                 int AI1Score = Random.Range(1, 100);
                 int AI2Score = Random.Range(1, 100);
+                // Control AI Dance
+                AIController.instance.ControlAIDance(1, AI1Score);
+                AIController.instance.ControlAIDance(2, AI2Score);
+                // Display AI Score
                 DisplayAIResult(AIController.instance.GetAIResultPos(1), AI1Score);
                 DisplayAIResult(AIController.instance.GetAIResultPos(2), AI2Score);
 
@@ -230,7 +230,13 @@ public class GameManager : MonoBehaviour
             obj.gameObject.Kill();
         }
 
+        GameObject player = GameObject.Find("Player2");
         yield return new WaitForSeconds(delayTime);
+        
+        while(player.GetComponent<CharacterController>().IsDancing())
+        {
+            yield return new WaitForSeconds(0.1f); // wait until player dance is done
+        }
 
         // After delayTime -> reset game
         GameObject[] objsResultMoves = GameObject.FindGameObjectsWithTag("ResultMoves");
@@ -245,8 +251,8 @@ public class GameManager : MonoBehaviour
         RenderMove();
 
         // Set Player animation to Idle
-        GameObject player = GameObject.Find("Player2");
-        player.GetComponent<CharacterController>().Idle();
+        //GameObject player = GameObject.Find("Player2");
+        //player.GetComponent<CharacterController>().Idle();
 
         // Stop AI animation
         AIController.instance.ControlAI(1, (int)Animation.Idle);
