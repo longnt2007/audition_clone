@@ -24,10 +24,11 @@ public class GameManager : MonoBehaviour
     private int ai1Score;
     private int ai2Score;
     public GameObject playerScoreTopText;
-    private bool playEffectScore = false;
+    //private bool playEffectScore = false;
     public GameObject playerScore1stText;
     public GameObject playerScore2ndText;
     public GameObject playerScore3rdText;
+    private bool isAIChangedScore = false;
 
 
     void Awake()
@@ -50,7 +51,7 @@ public class GameManager : MonoBehaviour
             CheckInputMove();
             StartRenderMovesEffect();
             RenderTopScore();
-            RenderAllScore();
+            RenderAIScore();
         }
     }
 
@@ -212,7 +213,7 @@ public class GameManager : MonoBehaviour
                 playerScore += score;
                 ai1Score += AI1Score;
                 ai2Score += AI2Score;
-
+                isAIChangedScore = true;
                 Debug.Log("PlayerMove: " + playerMoveList + " Result score: " + score + " AI1 score: " + AI1Score + " AI2 score: " + AI2Score);
             }
         }
@@ -461,6 +462,7 @@ public class GameManager : MonoBehaviour
 
     void RenderTopScore()
     {
+        /*
         if(currentLastTurnScore != GetPlayerLastTurnScore())
         {
             if(currentLastTurnScore > GetPlayerLastTurnScore())
@@ -481,24 +483,61 @@ public class GameManager : MonoBehaviour
                 playEffectScore = false;
             }
         }
-    }
-    void RenderAllScore()
-    {
+        */
+
+        bool playEffectScore = false;
         if(currentScore < GetPlayerScore())
         {
             currentScore++;
             playEffectScore = true;
         }
 
-        TextMeshProUGUI textmeshPro = playerScore1stText.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI textmeshPro = playerScoreTopText.GetComponent<TextMeshProUGUI>();
         if(textmeshPro != null)
         {
-            textmeshPro.SetText("1st: {0}", currentScore);
+            textmeshPro.SetText("{0}", currentScore);
+            if(playEffectScore)
+            {
+                playerScoreTopText.GetComponent<Animator>().Rebind();
+                playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
+            }
+        }
+
+        TextMeshProUGUI textmesh1stPro = playerScore1stText.GetComponent<TextMeshProUGUI>();
+        if(textmesh1stPro != null)
+        {
+            textmesh1stPro.SetText("You: {0}", currentScore);
             if(playEffectScore)
             {
                 playerScore1stText.GetComponent<Animator>().Rebind();
                 playerScore1stText.GetComponent<Animator>().Play("ScorePlayer");
                 playEffectScore = false;
+            }
+        }
+    }
+
+    void RenderAIScore()
+    {
+        TextMeshProUGUI textmesh2ndPro = playerScore2ndText.GetComponent<TextMeshProUGUI>();
+        if(textmesh2ndPro != null)
+        {
+            textmesh2ndPro.SetText("AI1: {0}", GetAIScore(1));
+            if(isAIChangedScore)
+            {
+                playerScore2ndText.GetComponent<Animator>().Rebind();
+                playerScore2ndText.GetComponent<Animator>().Play("ScorePlayer");
+            }
+        }
+
+        TextMeshProUGUI textmesh3rdPro = playerScore3rdText.GetComponent<TextMeshProUGUI>();
+        if(textmesh3rdPro != null)
+        {
+            textmesh3rdPro.SetText("AI2: {0}", GetAIScore(2));
+            if(isAIChangedScore)
+            {
+                playerScore3rdText.GetComponent<Animator>().Rebind();
+                playerScore3rdText.GetComponent<Animator>().Play("ScorePlayer");
+                isAIChangedScore = false;
             }
         }
     }
