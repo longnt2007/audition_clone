@@ -170,6 +170,14 @@ public class GameManager : MonoBehaviour
                 GameObject player = GameObject.Find("Player2");
                 player.GetComponent<CharacterController>().Dance();
 
+                // Test Control AI
+                AIController.instance.ControlAI(1, Random.Range((int)Animation.Dance, (int)Animation.Walk+1));
+                AIController.instance.ControlAI(2, Random.Range((int)Animation.Dance, (int)Animation.Walk+1));
+
+                // AI Score
+                DisplayAIResult(AIController.instance.GetAIResultPos(1), Random.Range(1, 100));
+                DisplayAIResult(AIController.instance.GetAIResultPos(2), Random.Range(1, 100));
+
                 // Make a coroutine to start new move after 2 seconds
                 IEnumerator coroutine = StartNewMove(2.0f);
                 StartCoroutine(coroutine);        
@@ -184,7 +192,6 @@ public class GameManager : MonoBehaviour
         GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
         foreach (GameObject obj in objsCurrentMoves)
         {
-            //obj.gameObject.tag = "OldMoves";
             obj.gameObject.SetActive(false); 
             obj.gameObject.Kill();
         }
@@ -205,6 +212,17 @@ public class GameManager : MonoBehaviour
         // Set Player animation to Idle
         GameObject player = GameObject.Find("Player2");
         player.GetComponent<CharacterController>().Idle();
+
+        // Stop AI animation
+        AIController.instance.ControlAI(1, (int)Animation.Idle);
+        AIController.instance.ControlAI(2, (int)Animation.Idle);
+
+        // Destroy AI Result objects
+        GameObject[] objsAIResult = GameObject.FindGameObjectsWithTag("AIResult");
+        foreach (GameObject obj in objsAIResult)
+        {
+            Destroy(obj);
+        }
     }
 
     void StartRenderMovesEffect()
@@ -276,6 +294,31 @@ public class GameManager : MonoBehaviour
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
             }
+        }
+    }
+
+    void DisplayAIResult(GameObject obj, int score)
+    {
+        GameObject result;
+
+        if(score > 80)
+           result = GameObject.Find("Result_Perfect");
+        else if(score > 60)
+            result = GameObject.Find("Result_Good");
+        else if(score > 40)
+            result = GameObject.Find("Result_Cool");
+        else if(score > 20)
+            result = GameObject.Find("Result_Bad");
+        else
+            result = GameObject.Find("Result_Miss");
+
+        if(result != null)
+        {
+            GameObject spawnInstance = Instantiate(result);
+            spawnInstance.transform.SetParent(obj.transform);
+            //spawnInstance.name = "AIResult";
+            spawnInstance.tag = "AIResult";
+            spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
         }
     }
 
