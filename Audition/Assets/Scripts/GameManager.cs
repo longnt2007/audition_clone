@@ -145,6 +145,12 @@ public class GameManager : MonoBehaviour
                 SpawnMoveBG(currentMove);
                 currentMove++;
             }
+
+            // Test music
+            if(currentMove > 0)
+            {
+                SoundManager.instance.PlayMusic();
+            }
         }
 
         if(currentMove >= move.Count)
