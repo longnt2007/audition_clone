@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -31,6 +32,28 @@ public class GameManager : MonoBehaviour
     public GameObject playerScore3rdText;
     private bool isAIChangedScore = false;
 
+    public float SpeedBmp;
+    public Slider SpeedBar;
+
+    public GameObject HitEffect;
+
+    enum Result
+    {
+        Perfect,
+        Great,
+        Cool,
+        Bad,
+        Miss
+    }
+    int[] ScoreBoard =
+    {
+        5400,
+        4050,
+        2700,
+        1890,
+        0
+    };
+
     void Awake()
     {
         instance = this;
@@ -53,6 +76,7 @@ public class GameManager : MonoBehaviour
             RenderTopScore();
             RenderAIScore();
         }
+        moveSpeedBarSmooth();
     }
 
     public void StartGame()
@@ -171,53 +195,66 @@ public class GameManager : MonoBehaviour
             //    SoundManager.instance.PlayMusic();
             //}
         }
-
-        if(currentMove >= move.Count)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if(isPlayerMoveFinished == false)
+            Result resultHit = IsResult();
+            if (currentMove >= move.Count)
             {
-                int match = 0;
-                string playerMoveList = "";
-                for(int i = 0; i < playerMove.Count; i++)
+                //if (isPlayerMoveFinished == false)
                 {
-                    playerMoveList += " " + ConvertMoveFromInt(playerMove[i]);
-                    if(playerMove[i] == move[i])
+                    int match = 0;
+                    string playerMoveList = "";
+                    for (int i = 0; i < playerMove.Count; i++)
                     {
-                        match++;
+                        playerMoveList += " " + ConvertMoveFromInt(playerMove[i]);
+                        if (playerMove[i] == move[i])
+                        {
+                            match++;
+                        }
                     }
+                    isPlayerMoveFinished = true;
+                    int score = 0;
+                    if (match >= playerMove.Count)
+                    {
+                        score = ScoreBoard[(int)resultHit];
+                        playerScoreTopText.GetComponent<Animator>().Rebind();
+                        playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
+                        
+                        HitEffect.transform.position = GameObject.Find("MoveBar").transform.position;
+                        HitEffect.GetComponent<ParticleSystem>().Play(); 
+                    }
+
+                    //int score = (int)(((float)match / move.Count) * 100);
+                    DisplayResult(score);
+
+                    // Make player start to dance
+                    GameObject player = GameObject.Find("Player2");
+                    player.GetComponent<CharacterController>().Dance(score);
+                    // hide particle at player foot
+                    footParticle.SetActive(false);
+
+                    // Random AI Score
+                    int AI1Score = Random.Range(1, 100);
+                    int AI2Score = Random.Range(1, 100);
+                    // Control AI Dance
+                    AIController.instance.ControlAIDance(1, AI1Score);
+                    AIController.instance.ControlAIDance(2, AI2Score);
+                    // Display AI Score
+                    DisplayAIResult(AIController.instance.GetAIResultPos(1), AI1Score);
+                    DisplayAIResult(AIController.instance.GetAIResultPos(2), AI2Score);
+
+                    // Make a coroutine to start new move after 2 seconds
+                    IEnumerator coroutine = StartNewMove(0.1f);
+                    StartCoroutine(coroutine);
+
+                    // Increase score for players
+                    playerLastTurnScore = score;
+                    playerScore += score;
+                    ai1Score += AI1Score;
+                    ai2Score += AI2Score;
+                    isAIChangedScore = true;
+                    Debug.Log("PlayerMove: " + playerMoveList + " Result score: " + score + " AI1 score: " + AI1Score + " AI2 score: " + AI2Score);
                 }
-                isPlayerMoveFinished = true;
-
-                int score = (int)(((float)match / move.Count) * 100);
-                DisplayResult(score);
-
-                // Make player start to dance
-                GameObject player = GameObject.Find("Player2");
-                player.GetComponent<CharacterController>().Dance(score);
-                // hide particle at player foot
-                footParticle.SetActive(false);
-
-                // Random AI Score
-                int AI1Score = Random.Range(1, 100);
-                int AI2Score = Random.Range(1, 100);
-                // Control AI Dance
-                AIController.instance.ControlAIDance(1, AI1Score);
-                AIController.instance.ControlAIDance(2, AI2Score);
-                // Display AI Score
-                DisplayAIResult(AIController.instance.GetAIResultPos(1), AI1Score);
-                DisplayAIResult(AIController.instance.GetAIResultPos(2), AI2Score);
-
-                // Make a coroutine to start new move after 2 seconds
-                IEnumerator coroutine = StartNewMove(2.0f);
-                StartCoroutine(coroutine);
-
-                // Increase score for players
-                playerLastTurnScore = score;
-                playerScore += score;
-                ai1Score += AI1Score;
-                ai2Score += AI2Score;
-                isAIChangedScore = true;
-                Debug.Log("PlayerMove: " + playerMoveList + " Result score: " + score + " AI1 score: " + AI1Score + " AI2 score: " + AI2Score);
             }
         }
     }
@@ -277,12 +314,18 @@ public class GameManager : MonoBehaviour
             int idx = 0;
             foreach (GameObject obj in objsCurrentMoves)
             {
+                // obj.GetComponent<SpriteRenderer>().color = new Color(
+                //     obj.GetComponent<SpriteRenderer>().color.r,
+                //     obj.GetComponent<SpriteRenderer>().color.g,
+                //     obj.GetComponent<SpriteRenderer>().color.b,
+                //     Mathf.Lerp(0, 1.0f, (Time.time - (startRenderMovesTime + (float)idx * 0.15f)) / effectTime));
+                // idx++;
+
                 obj.GetComponent<SpriteRenderer>().color = new Color(
-                    obj.GetComponent<SpriteRenderer>().color.r,
-                    obj.GetComponent<SpriteRenderer>().color.g,
-                    obj.GetComponent<SpriteRenderer>().color.b,
-                    Mathf.Lerp(0, 1.0f, (Time.time - (startRenderMovesTime + (float)idx * 0.15f)) / effectTime));
-                idx++;
+                     obj.GetComponent<SpriteRenderer>().color.r,
+                     obj.GetComponent<SpriteRenderer>().color.g,
+                     obj.GetComponent<SpriteRenderer>().color.b,
+                     1.0f);
             }
         }
     }
@@ -498,7 +541,9 @@ public class GameManager : MonoBehaviour
         bool playEffectScore = false;
         if(currentScore < GetPlayerScore())
         {
-            currentScore++;
+            currentScore+=50;
+            if(currentScore > GetPlayerScore())
+                currentScore = GetPlayerScore();
             playEffectScore = true;
         }
 
@@ -508,8 +553,8 @@ public class GameManager : MonoBehaviour
             textmeshPro.SetText("{0}", currentScore);
             if(playEffectScore)
             {
-                playerScoreTopText.GetComponent<Animator>().Rebind();
-                playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
+                //playerScoreTopText.GetComponent<Animator>().Rebind();
+                //playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
             }
         }
 
@@ -568,5 +613,32 @@ public class GameManager : MonoBehaviour
             return ai1Score;
         else
             return ai2Score;
+    }
+
+    void moveSpeedBar()
+    {
+
+    }
+
+    void moveSpeedBarSmooth()
+    {
+        SpeedBar.value += SpeedBmp * Time.deltaTime;
+        Debug.Log("progress bar = " + SpeedBar.value);
+        if (SpeedBar.value >= 1.0f)
+            SpeedBar.value = 0.0f;
+    }
+
+    Result IsResult()
+    {
+        if (SpeedBar.value >= 0.79f && SpeedBar.value <= 0.82f)
+            return Result.Perfect;
+        else if ((SpeedBar.value >= 0.77f && SpeedBar.value < 0.79f) || (SpeedBar.value > 0.82f && SpeedBar.value <= 0.84f))
+            return Result.Great;
+        else if ((SpeedBar.value >= 0.75f && SpeedBar.value < 0.77f) || (SpeedBar.value > 0.84f && SpeedBar.value <= 0.86f))
+            return Result.Cool;
+        else if ((SpeedBar.value >= 0.73f && SpeedBar.value < 0.75f) || (SpeedBar.value > 0.86f && SpeedBar.value <= 0.88f))
+            return Result.Bad;
+        else
+            return Result.Miss;
     }
 }
