@@ -29,7 +29,7 @@ public class Pool : MonoBehaviour
     public bool ShouldExpand = true;
     private int orginalPoolsize;
     public bool ShouldRemove = true;
-    private string groupParentName;
+    public GameObject parentAnchor;
 
     Stack<GameObject> pooledInstances;
     List<GameObject> aliveInstances;
@@ -85,7 +85,8 @@ public class Pool : MonoBehaviour
             GameObject newlyInstantiatedObject = Instantiate(prefab);
 
             //newlyInstantiatedObject.transform.SetParent(parent);
-            newlyInstantiatedObject.transform.SetParent(GameObject.Find("MoveBar").transform);
+            newlyInstantiatedObject.transform.SetParent(parentAnchor.transform);
+            //newlyInstantiatedObject.transform.SetParent(GameObject.Find("MoveBar").transform);
             
 
             if (useLocalPosition)
@@ -106,7 +107,8 @@ public class Pool : MonoBehaviour
 
         GameObject obj = pooledInstances.Pop();
 
-        obj.transform.SetParent(GameObject.Find("MoveBar").transform);
+        obj.transform.SetParent(parentAnchor.transform);
+        //obj.transform.SetParent(GameObject.Find("MoveBar").transform);
 
         if (useLocalPosition)
             obj.transform.localPosition = position;

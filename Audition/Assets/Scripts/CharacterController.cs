@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Animation {Idle = 0, Dance = 1, Walk = 2}
+
 public class CharacterController : MonoBehaviour
 {
     //0: idle  (loop)
@@ -23,22 +25,22 @@ public class CharacterController : MonoBehaviour
 
     public void Idle()
     {
-        Debug.Log("CharacterController: Idle");
-        state = 0;
+        //Debug.Log("CharacterController: Idle");
+        state = (int)Animation.Idle;
         SetAnimation(state);
     }
 
     public void Dance()
     {
-        Debug.Log("CharacterController: Dance");
-        state = 1;
+        //Debug.Log("CharacterController: Dance");
+        state = (int)Animation.Dance;
         SetAnimation(state);
     }
 
     public void Walk()
     {
-        Debug.Log("CharacterController: Walk");
-        state = 2;
+        //Debug.Log("CharacterController: Walk");
+        state = (int)Animation.Walk;
         SetAnimation(state);
     }
 

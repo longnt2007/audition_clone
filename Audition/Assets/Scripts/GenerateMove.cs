@@ -2,28 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Direction {Up = 1, Down = 2, Left = 3, Right = 4}
+
 public class GenerateMove : MonoBehaviour
 {
     public static GenerateMove instance;
 
     public List<int> move;
-
+    
     // Start is called before the first frame update
     void Awake()
     {
-        Debug.Log("GenerateMove::Awake");
+        //Debug.Log("GenerateMove::Awake");
         instance = this;
 
         move = new List<int>();
-        move.Add(1); //Up
-        move.Add(2); //Down
-        move.Add(3); //Left
-        move.Add(4); //Right
+        move.Add((int)Direction.Up);    //Up
+        move.Add((int)Direction.Down);  //Down
+        move.Add((int)Direction.Left);  //Left
+        move.Add((int)Direction.Right); //Right
     }
 
     public List<int> GetMove()
     {
-        Debug.Log("GenerateMove::GetMove");
+        //Debug.Log("GenerateMove::GetMove");
         return move;
     }
 
