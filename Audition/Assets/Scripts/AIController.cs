@@ -35,7 +35,7 @@ public class AIController : MonoBehaviour
         else if(state == 2)
             controlAI.GetComponent<CharacterController>().Walk();
         else
-            controlAI.GetComponent<CharacterController>().Idle();
+            controlAI.GetComponent<CharacterController>().Idle(true);
     }
 
     public void ControlAIDance(int index, int score)

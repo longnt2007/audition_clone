@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     private float yResultOffset = 1.5f;
     public GameObject moveBackgroundGood;
     public GameObject moveBackgroundBad;
+    private GameObject footParticle;
     private int playerScore;
     private int currentScore;
     private int currentLastTurnScore;
@@ -29,7 +30,6 @@ public class GameManager : MonoBehaviour
     public GameObject playerScore2ndText;
     public GameObject playerScore3rdText;
     private bool isAIChangedScore = false;
-
 
     void Awake()
     {
@@ -61,6 +61,7 @@ public class GameManager : MonoBehaviour
         RenderMove();
 
         currentLastTurnScore = playerLastTurnScore = currentScore = playerScore = ai1Score = ai2Score = 0;
+        footParticle = GameObject.Find("FinishMove");
     }
 
     public void GetMove()
@@ -193,6 +194,8 @@ public class GameManager : MonoBehaviour
                 // Make player start to dance
                 GameObject player = GameObject.Find("Player2");
                 player.GetComponent<CharacterController>().Dance(score);
+                // hide particle at player foot
+                footParticle.SetActive(false);
 
                 // Random AI Score
                 int AI1Score = Random.Range(1, 100);
@@ -250,10 +253,6 @@ public class GameManager : MonoBehaviour
         GetMove();
         RenderMove();
 
-        // Set Player animation to Idle
-        //GameObject player = GameObject.Find("Player2");
-        //player.GetComponent<CharacterController>().Idle();
-
         // Stop AI animation
         AIController.instance.ControlAI(1, (int)Animation.Idle);
         AIController.instance.ControlAI(2, (int)Animation.Idle);
@@ -264,6 +263,9 @@ public class GameManager : MonoBehaviour
         {
             Destroy(obj);
         }
+
+        //show particle at player foot
+        footParticle.SetActive(true);
     }
 
     void StartRenderMovesEffect()
@@ -451,7 +453,8 @@ public class GameManager : MonoBehaviour
             {
                 GameObject spawnInstance = Instantiate(moveBackgroundGood);
                 spawnInstance.transform.SetParent(obj.transform);
-                spawnInstance.transform.position = obj.transform.position;
+                //spawnInstance.transform.position = obj.transform.position;
+                spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
                 spawnInstance.SetActive(true); 
             }
@@ -459,7 +462,8 @@ public class GameManager : MonoBehaviour
             {
                 GameObject spawnInstance = Instantiate(moveBackgroundBad);
                 spawnInstance.transform.SetParent(obj.transform);
-                spawnInstance.transform.position = obj.transform.position;
+                //spawnInstance.transform.position = obj.transform.position;
+                spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
                 spawnInstance.SetActive(true); 
             }

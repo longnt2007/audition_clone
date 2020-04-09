@@ -2833,6 +2833,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: FinishMove
       objectReference: {fileID: 0}
+    - target: {fileID: 4133214416528812927, guid: 7f2a64be55c81544daea726f2a545171,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7f2a64be55c81544daea726f2a545171, type: 3}
 --- !u!1 &1852773371

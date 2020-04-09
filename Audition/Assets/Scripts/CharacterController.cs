@@ -32,11 +32,16 @@ public class CharacterController : MonoBehaviour
         // Do smt
     }
 
-    public void Idle()
+    public void Idle(bool force = false)
     {
         //Debug.Log("CharacterController: Idle");
         state = (int)Animation.Idle;
         SetAnimation(state);
+        if(force)
+        {
+            this.GetComponent<Animator>().Rebind();
+            this.GetComponent<Animator>().Play("Idle");
+        }
     }
 
     public void Dance()
