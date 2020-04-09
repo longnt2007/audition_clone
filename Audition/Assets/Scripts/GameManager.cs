@@ -289,21 +289,24 @@ public class GameManager : MonoBehaviour
 
     void DisplayResult(int score)
     {
+        GameObject result;
         if(score > 80)
         {
-            GameObject result = GameObject.Find("Result_Perfect");
+            result = GameObject.Find("Result_Perfect");
             if(result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
+                result.GetComponent<Animator>().Rebind();
+                result.GetComponent<Animator>().Play("good");
             }
         }
         else if(score > 60)
         {
-            GameObject result = GameObject.Find("Result_Good");
+            result = GameObject.Find("Result_Great");
             if(result != null)
             {
-                result.transform.localPosition = Vector3.zero;
+                result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
@@ -311,11 +314,10 @@ public class GameManager : MonoBehaviour
         }
         else if(score > 40)
         {
-            GameObject result = GameObject.Find("Result_Cool");
-            if(result != null)
+            result = GameObject.Find("Result_Cool");
             if(result != null)
             {
-                result.transform.localPosition = Vector3.zero;
+                result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
@@ -323,11 +325,10 @@ public class GameManager : MonoBehaviour
         }
         else if(score > 20)
         {
-            GameObject result = GameObject.Find("Result_Bad");
-            if(result != null)
+            result = GameObject.Find("Result_Bad");
             if(result != null)
             {
-                result.transform.localPosition = Vector3.zero;
+                result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
@@ -335,11 +336,10 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            GameObject result = GameObject.Find("Result_Miss");
-            if(result != null)
+            result = GameObject.Find("Result_Miss");
             if(result != null)
             {
-                result.transform.localPosition = Vector3.zero;
+                result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
@@ -358,7 +358,7 @@ public class GameManager : MonoBehaviour
            isPerfect = true; // apply offset for special sprite
         }
         else if(score > 60)
-            result = GameObject.Find("Result_Good");
+            result = GameObject.Find("Result_Great");
         else if(score > 40)
             result = GameObject.Find("Result_Cool");
         else if(score > 20)
@@ -370,10 +370,10 @@ public class GameManager : MonoBehaviour
         {
             GameObject spawnInstance = Instantiate(result);
             spawnInstance.transform.SetParent(obj.transform);
-            if(isPerfect)
+            //if(isPerfect)
                 spawnInstance.transform.localPosition = new Vector3(0,yResultOffset + 0.2f,0);
-            else
-                spawnInstance.transform.localPosition = Vector3.zero;
+            //else
+                //spawnInstance.transform.localPosition = Vector3.zero;
             spawnInstance.tag = "AIResult";
             spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
         }
