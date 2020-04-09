@@ -19,10 +19,17 @@ public class GameManager : MonoBehaviour
     public GameObject moveBackgroundBad;
     private int playerScore;
     private int currentScore;
+    private int currentLastTurnScore;
+    private int playerLastTurnScore;
     private int ai1Score;
     private int ai2Score;
-    public GameObject playerScoreText;
+    public GameObject playerScoreTopText;
     private bool playEffectScore = false;
+    public GameObject playerScore1stText;
+    public GameObject playerScore2ndText;
+    public GameObject playerScore3rdText;
+
+
     void Awake()
     {
         instance = this;
@@ -42,7 +49,8 @@ public class GameManager : MonoBehaviour
         {
             CheckInputMove();
             StartRenderMovesEffect();
-            RenderScore();
+            RenderTopScore();
+            RenderAllScore();
         }
     }
 
@@ -51,7 +59,7 @@ public class GameManager : MonoBehaviour
         GetMove();
         RenderMove();
 
-        currentScore = playerScore = ai1Score = ai2Score = 0;
+        currentLastTurnScore = playerLastTurnScore = currentScore = playerScore = ai1Score = ai2Score = 0;
     }
 
     public void GetMove()
@@ -200,6 +208,7 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(coroutine);
 
                 // Increase score for players
+                playerLastTurnScore = score;
                 playerScore += score;
                 ai1Score += AI1Score;
                 ai2Score += AI2Score;
@@ -450,7 +459,30 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void RenderScore()
+    void RenderTopScore()
+    {
+        if(currentLastTurnScore != GetPlayerLastTurnScore())
+        {
+            if(currentLastTurnScore > GetPlayerLastTurnScore())
+                currentLastTurnScore--;
+            else
+                currentLastTurnScore++;
+            playEffectScore = true;
+        }
+
+        TextMeshProUGUI textmeshPro = playerScoreTopText.GetComponent<TextMeshProUGUI>();
+        if(textmeshPro != null)
+        {
+            textmeshPro.SetText("{0}", currentLastTurnScore);
+            if(playEffectScore)
+            {
+                playerScoreTopText.GetComponent<Animator>().Rebind();
+                playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
+                playEffectScore = false;
+            }
+        }
+    }
+    void RenderAllScore()
     {
         if(currentScore < GetPlayerScore())
         {
@@ -458,17 +490,22 @@ public class GameManager : MonoBehaviour
             playEffectScore = true;
         }
 
-        TextMeshProUGUI textmeshPro = playerScoreText.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI textmeshPro = playerScore1stText.GetComponent<TextMeshProUGUI>();
         if(textmeshPro != null)
         {
-            textmeshPro.SetText("{0}", currentScore);
+            textmeshPro.SetText("1st: {0}", currentScore);
             if(playEffectScore)
             {
-                playerScoreText.GetComponent<Animator>().Rebind();
-                playerScoreText.GetComponent<Animator>().Play("ScorePlayer");
+                playerScore1stText.GetComponent<Animator>().Rebind();
+                playerScore1stText.GetComponent<Animator>().Play("ScorePlayer");
                 playEffectScore = false;
             }
         }
+    }
+
+    int GetPlayerLastTurnScore()
+    {
+        return playerLastTurnScore;
     }
 
     int GetPlayerScore()
