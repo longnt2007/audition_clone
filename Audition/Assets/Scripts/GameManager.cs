@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     private List<int> playerMove;
     private float startRenderMovesTime;
     private float renderMovesEffectTime = 2.0f;
+    private float yResultOffset = 1.5f;
     
     public GameObject moveBackgroundGood;
     public GameObject moveBackgroundBad;
@@ -163,7 +164,6 @@ public class GameManager : MonoBehaviour
                 isPlayerMoveFinished = true;
 
                 int score = (int)(((float)match / move.Count) * 100);
-                Debug.Log("PlayerMove: " + playerMoveList + " Result score: " + score);
                 DisplayResult(score);
 
                 // Make player start to dance
@@ -175,12 +175,16 @@ public class GameManager : MonoBehaviour
                 AIController.instance.ControlAI(2, Random.Range((int)Animation.Dance, (int)Animation.Walk+1));
 
                 // AI Score
-                DisplayAIResult(AIController.instance.GetAIResultPos(1), Random.Range(1, 100));
-                DisplayAIResult(AIController.instance.GetAIResultPos(2), Random.Range(1, 100));
+                int AI1Score = Random.Range(1, 100);
+                int AI2Score = Random.Range(1, 100);
+                DisplayAIResult(AIController.instance.GetAIResultPos(1), AI1Score);
+                DisplayAIResult(AIController.instance.GetAIResultPos(2), AI2Score);
 
                 // Make a coroutine to start new move after 2 seconds
                 IEnumerator coroutine = StartNewMove(2.0f);
                 StartCoroutine(coroutine);        
+
+                Debug.Log("PlayerMove: " + playerMoveList + " Result score: " + score + " AI1 score: " + AI1Score + " AI2 score: " + AI2Score);
             }
         }
     }
@@ -203,6 +207,7 @@ public class GameManager : MonoBehaviour
         foreach (GameObject obj in objsResultMoves)
         {
             obj.GetComponent<SpriteRenderer>().enabled = false;
+            obj.transform.localPosition = Vector3.zero;
         }
 
         // After delayTime -> make new Move
@@ -250,13 +255,17 @@ public class GameManager : MonoBehaviour
         {
             GameObject result = GameObject.Find("Result_Perfect");
             if(result != null)
+            {
+                result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
+            }
         }
         else if(score > 60)
         {
             GameObject result = GameObject.Find("Result_Good");
             if(result != null)
             {
+                result.transform.localPosition = Vector3.zero;
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
@@ -268,6 +277,7 @@ public class GameManager : MonoBehaviour
             if(result != null)
             if(result != null)
             {
+                result.transform.localPosition = Vector3.zero;
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
@@ -279,6 +289,7 @@ public class GameManager : MonoBehaviour
             if(result != null)
             if(result != null)
             {
+                result.transform.localPosition = Vector3.zero;
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
@@ -290,6 +301,7 @@ public class GameManager : MonoBehaviour
             if(result != null)
             if(result != null)
             {
+                result.transform.localPosition = Vector3.zero;
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
@@ -300,9 +312,13 @@ public class GameManager : MonoBehaviour
     void DisplayAIResult(GameObject obj, int score)
     {
         GameObject result;
+        bool isPerfect = false;
 
         if(score > 80)
+        {
            result = GameObject.Find("Result_Perfect");
+           isPerfect = true; // apply offset for special sprite
+        }
         else if(score > 60)
             result = GameObject.Find("Result_Good");
         else if(score > 40)
@@ -316,7 +332,10 @@ public class GameManager : MonoBehaviour
         {
             GameObject spawnInstance = Instantiate(result);
             spawnInstance.transform.SetParent(obj.transform);
-            //spawnInstance.name = "AIResult";
+            if(isPerfect)
+                spawnInstance.transform.localPosition = new Vector3(0,yResultOffset + 0.2f,0);
+            else
+                spawnInstance.transform.localPosition = Vector3.zero;
             spawnInstance.tag = "AIResult";
             spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
         }
