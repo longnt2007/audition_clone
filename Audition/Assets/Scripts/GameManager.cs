@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,9 +15,14 @@ public class GameManager : MonoBehaviour
     private float startRenderMovesTime;
     private float renderMovesEffectTime = 2.0f;
     private float yResultOffset = 1.5f;
-    
     public GameObject moveBackgroundGood;
     public GameObject moveBackgroundBad;
+    private int playerScore;
+    private int currentScore;
+    private int ai1Score;
+    private int ai2Score;
+    public GameObject playerScoreText;
+    private bool playEffectScore = false;
     void Awake()
     {
         instance = this;
@@ -36,6 +42,7 @@ public class GameManager : MonoBehaviour
         {
             CheckInputMove();
             StartRenderMovesEffect();
+            RenderScore();
         }
     }
 
@@ -43,6 +50,8 @@ public class GameManager : MonoBehaviour
     {
         GetMove();
         RenderMove();
+
+        currentScore = playerScore = ai1Score = ai2Score = 0;
     }
 
     public void GetMove()
@@ -147,10 +156,10 @@ public class GameManager : MonoBehaviour
             }
 
             // Test music
-            if(currentMove > 0)
-            {
-                SoundManager.instance.PlayMusic();
-            }
+            //if(currentMove > 0)
+            //{
+            //    SoundManager.instance.PlayMusic();
+            //}
         }
 
         if(currentMove >= move.Count)
@@ -188,7 +197,12 @@ public class GameManager : MonoBehaviour
 
                 // Make a coroutine to start new move after 2 seconds
                 IEnumerator coroutine = StartNewMove(2.0f);
-                StartCoroutine(coroutine);        
+                StartCoroutine(coroutine);
+
+                // Increase score for players
+                playerScore += score;
+                ai1Score += AI1Score;
+                ai2Score += AI2Score;
 
                 Debug.Log("PlayerMove: " + playerMoveList + " Result score: " + score + " AI1 score: " + AI1Score + " AI2 score: " + AI2Score);
             }
@@ -434,5 +448,39 @@ public class GameManager : MonoBehaviour
                 spawnInstance.SetActive(true); 
             }
         }
+    }
+
+    void RenderScore()
+    {
+        if(currentScore < GetPlayerScore())
+        {
+            currentScore++;
+            playEffectScore = true;
+        }
+
+        TextMeshProUGUI textmeshPro = playerScoreText.GetComponent<TextMeshProUGUI>();
+        if(textmeshPro != null)
+        {
+            textmeshPro.SetText("{0}", currentScore);
+            if(playEffectScore)
+            {
+                playerScoreText.GetComponent<Animator>().Rebind();
+                playerScoreText.GetComponent<Animator>().Play("ScorePlayer");
+                playEffectScore = false;
+            }
+        }
+    }
+
+    int GetPlayerScore()
+    {
+        return playerScore;
+    }
+
+    int GetAIScore(int index)
+    {
+        if(index == 1)
+            return ai1Score;
+        else
+            return ai2Score;
     }
 }
