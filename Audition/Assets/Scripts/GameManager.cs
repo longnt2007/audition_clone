@@ -713,9 +713,10 @@ public class GameManager : MonoBehaviour
 
     void moveSpeedBarSmooth()
     {
-        SpeedBar.value += SpeedBmp * Time.deltaTime;
+        float percent = SpeedBar.GetComponent<LevelRthymController>().getPercentBar();
+        //SpeedBar.value += SpeedBmp * Time.deltaTime;
         Debug.Log("progress bar = " + SpeedBar.value);
-        if(SpeedBar.value > 0.88f)
+        if(percent> 88f)
         {
             
             if(!lockCountNextMove)
@@ -733,9 +734,9 @@ public class GameManager : MonoBehaviour
                 lockCountNextMove  = true;
             }
         }
-        if (SpeedBar.value >= 1.0f)
+        if (percent == 0.0f)
         {
-            SpeedBar.value = 0.0f;
+            //SpeedBar.value = 0.0f;
             lockCountNextMove = false;
             playerTurn = true;
         }
@@ -790,13 +791,14 @@ public class GameManager : MonoBehaviour
 
     Result IsResult()
     {
-        if (SpeedBar.value >= 0.79f && SpeedBar.value <= 0.82f)
+        float percent = SpeedBar.GetComponent<LevelRthymController>().getPercentBar();
+        if (percent >= 79f && percent <= 82f)
             return Result.Perfect;
-        else if ((SpeedBar.value >= 0.77f && SpeedBar.value < 0.79f) || (SpeedBar.value > 0.82f && SpeedBar.value <= 0.84f))
+        else if ((percent >= 77f && percent < 79f) || (percent > 82f && percent <= 84f))
             return Result.Great;
-        else if ((SpeedBar.value >= 0.75f && SpeedBar.value < 0.77f) || (SpeedBar.value > 0.84f && SpeedBar.value <= 0.86f))
+        else if ((percent >= 75f && percent < 77f) || (percent > 84f && percent <= 86f))
             return Result.Cool;
-        else if ((SpeedBar.value >= 0.73f && SpeedBar.value < 0.75f) || (SpeedBar.value > 0.86f && SpeedBar.value <= 0.88f))
+        else if ((percent >= 73f && percent < 75f) || (percent > 86f && percent <= 88f))
             return Result.Bad;
         else
             return Result.Miss;

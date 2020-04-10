@@ -123,6 +123,10 @@ public class LevelRthymController : MonoBehaviour
         _rhythmSlider.value = t;
 
     }
+    public float getPercentBar()
+    {
+        return  ((_rhythmSlider.value * 100.0f)/ _rhythmSlider.maxValue);
+    }
     void UpdateLevel()
     {
         if (levelCount == 6 || levelCount == 7)
