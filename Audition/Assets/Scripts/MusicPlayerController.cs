@@ -50,4 +50,9 @@ public class MusicPlayerController : MonoBehaviour
     {
         SetSongTime();
     }
+
+    public AudioSource GetAudioSource()
+    {
+        return audioSource;
+    }
 }
