@@ -36,6 +36,8 @@ public class GameManager : MonoBehaviour
     public Slider SpeedBar;
 
     public GameObject HitEffect;
+    public List<AudioClip> effectSound;
+    AudioSource audioSource;
 
     enum Result
     {
@@ -69,7 +71,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isRenderMove)
+        if (isRenderMove)
         {
             CheckInputMove();
             StartRenderMovesEffect();
@@ -86,16 +88,20 @@ public class GameManager : MonoBehaviour
 
         currentLastTurnScore = playerLastTurnScore = currentScore = playerScore = ai1Score = ai2Score = 0;
         footParticle = GameObject.Find("FinishMove");
+
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
     }
 
     public void GetMove()
     {
         GenerateMove.instance.RandomMove();
         List<int> move = GenerateMove.instance.GetMove();
-        if(move.Count > 0)
+        if (move.Count > 0)
         {
             string moveList = "";
-            for(int i = 0; i < move.Count; i++)
+            for (int i = 0; i < move.Count; i++)
                 moveList += " " + ConvertMoveFromInt(move[i]);
             Debug.Log("GetMove: " + moveList);
         }
@@ -105,16 +111,16 @@ public class GameManager : MonoBehaviour
     {
         List<int> move = GenerateMove.instance.GetMove();
         Transform positionMove = GameObject.Find("MoveBar").transform;
-        if(move.Count > 0)
+        if (move.Count > 0)
         {
-            for(int i = 0; i < move.Count; i++)
+            for (int i = 0; i < move.Count; i++)
             {
-                float x = positionMove.position.x + 1*i - 1*(move.Count/2);
+                float x = positionMove.position.x + 1 * i - 1 * (move.Count / 2);
                 float y = positionMove.position.y;
                 float z = positionMove.position.z;
                 Vector3 position = new Vector3(x, y, z);
                 Direction dir = (Direction)move[i];
-                switch(dir)
+                switch (dir)
                 {
                     case Direction.Up:
                         SpawnArrowUp(position);
@@ -147,7 +153,7 @@ public class GameManager : MonoBehaviour
                     0);
 
                 // Remove old BG moves
-                if((obj.transform.childCount > 0) && obj.transform.GetChild(0) != null)
+                if ((obj.transform.childCount > 0) && obj.transform.GetChild(0) != null)
                 {
                     Destroy(obj.transform.GetChild(0).gameObject);
                 }
@@ -158,30 +164,30 @@ public class GameManager : MonoBehaviour
     void CheckInputMove()
     {
         List<int> move = GenerateMove.instance.GetMove();
-        if(currentMove < move.Count)
+        if (currentMove < move.Count)
         {
-            if(Input.GetKeyUp(KeyCode.UpArrow))
+            if (Input.GetKeyUp(KeyCode.UpArrow))
             {
                 //Debug.Log("PressUp");
                 playerMove.Add((int)Direction.Up);
                 SpawnMoveBG(currentMove);
                 currentMove++;
             }
-            else if(Input.GetKeyUp(KeyCode.DownArrow))
+            else if (Input.GetKeyUp(KeyCode.DownArrow))
             {
                 //Debug.Log("PressDown");
                 playerMove.Add((int)Direction.Down);
                 SpawnMoveBG(currentMove);
                 currentMove++;
             }
-            else if(Input.GetKeyUp(KeyCode.LeftArrow))
+            else if (Input.GetKeyUp(KeyCode.LeftArrow))
             {
                 //Debug.Log("PressLeft");
                 playerMove.Add((int)Direction.Left);
                 SpawnMoveBG(currentMove);
                 currentMove++;
             }
-            else if(Input.GetKeyUp(KeyCode.RightArrow))
+            else if (Input.GetKeyUp(KeyCode.RightArrow))
             {
                 //Debug.Log("PressRight");
                 playerMove.Add((int)Direction.Right);
@@ -219,9 +225,9 @@ public class GameManager : MonoBehaviour
                         score = ScoreBoard[(int)resultHit];
                         playerScoreTopText.GetComponent<Animator>().Rebind();
                         playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
-                        
+
                         HitEffect.transform.position = GameObject.Find("MoveBar").transform.position;
-                        HitEffect.GetComponent<ParticleSystem>().Play(); 
+                        HitEffect.GetComponent<ParticleSystem>().Play();
                     }
 
                     //int score = (int)(((float)match / move.Count) * 100);
@@ -266,14 +272,14 @@ public class GameManager : MonoBehaviour
         GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
         foreach (GameObject obj in objsCurrentMoves)
         {
-            obj.gameObject.SetActive(false); 
+            obj.gameObject.SetActive(false);
             obj.gameObject.Kill();
         }
 
         GameObject player = GameObject.Find("Player2");
         yield return new WaitForSeconds(delayTime);
-        
-        while(player.GetComponent<CharacterController>().IsDancing())
+
+        while (player.GetComponent<CharacterController>().IsDancing())
         {
             yield return new WaitForSeconds(0.1f); // wait until player dance is done
         }
@@ -308,7 +314,7 @@ public class GameManager : MonoBehaviour
     void StartRenderMovesEffect()
     {
         float effectTime = renderMovesEffectTime; //2 seconds to fade in
-        if((Time.time - startRenderMovesTime) <= effectTime)
+        if ((Time.time - startRenderMovesTime) <= effectTime)
         {
             GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
             int idx = 0;
@@ -333,61 +339,67 @@ public class GameManager : MonoBehaviour
     void DisplayResult(int score)
     {
         GameObject result;
-        if(score > 80)
+        if (score > 80)
         {
             result = GameObject.Find("Result_Perfect");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[0];
             }
         }
-        else if(score > 60)
+        else if (score > 60)
         {
             result = GameObject.Find("Result_Great");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[1];
             }
         }
-        else if(score > 40)
+        else if (score > 40)
         {
             result = GameObject.Find("Result_Cool");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[2];
             }
         }
-        else if(score > 20)
+        else if (score > 20)
         {
             result = GameObject.Find("Result_Bad");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[3];
             }
         }
         else
         {
             result = GameObject.Find("Result_Miss");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[4];
             }
         }
+        audioSource.Play();
     }
 
     void DisplayAIResult(GameObject obj, int score)
@@ -395,28 +407,28 @@ public class GameManager : MonoBehaviour
         GameObject result;
         bool isPerfect = false;
 
-        if(score > 80)
+        if (score > 80)
         {
-           result = GameObject.Find("Result_Perfect");
-           isPerfect = true; // apply offset for special sprite
+            result = GameObject.Find("Result_Perfect");
+            isPerfect = true; // apply offset for special sprite
         }
-        else if(score > 60)
+        else if (score > 60)
             result = GameObject.Find("Result_Great");
-        else if(score > 40)
+        else if (score > 40)
             result = GameObject.Find("Result_Cool");
-        else if(score > 20)
+        else if (score > 20)
             result = GameObject.Find("Result_Bad");
         else
             result = GameObject.Find("Result_Miss");
 
-        if(result != null)
+        if (result != null)
         {
             GameObject spawnInstance = Instantiate(result);
             spawnInstance.transform.SetParent(obj.transform);
             //if(isPerfect)
-                spawnInstance.transform.localPosition = new Vector3(0,yResultOffset + 0.2f,0);
+            spawnInstance.transform.localPosition = new Vector3(0, yResultOffset + 0.2f, 0);
             //else
-                //spawnInstance.transform.localPosition = Vector3.zero;
+            //spawnInstance.transform.localPosition = Vector3.zero;
             spawnInstance.tag = "AIResult";
             spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
         }
@@ -425,7 +437,7 @@ public class GameManager : MonoBehaviour
     string ConvertMoveFromInt(int move)
     {
         Direction dir = (Direction)move;
-        switch(dir)
+        switch (dir)
         {
             case Direction.Up:
                 return "Up";
@@ -445,10 +457,10 @@ public class GameManager : MonoBehaviour
         if (arrow != null)
         {
             arrow.transform.position = pos;
-            arrow.transform.transform.Rotate(new Vector3(0, 0, 90)); 
+            arrow.transform.transform.Rotate(new Vector3(0, 0, 90));
             arrow.tag = "CurrentMoves";
             arrow.SetActive(true);
-        } 
+        }
     }
     void SpawnArrowDown(Vector3 pos)
     {
@@ -456,10 +468,10 @@ public class GameManager : MonoBehaviour
         if (arrow != null)
         {
             arrow.transform.position = pos;
-            arrow.transform.transform.Rotate(new Vector3(0, 0, -90)); 
+            arrow.transform.transform.Rotate(new Vector3(0, 0, -90));
             arrow.tag = "CurrentMoves";
             arrow.SetActive(true);
-        } 
+        }
     }
     void SpawnArrowLeft(Vector3 pos)
     {
@@ -470,7 +482,7 @@ public class GameManager : MonoBehaviour
             arrow.transform.transform.Rotate(new Vector3(0, 0, 180));
             arrow.tag = "CurrentMoves";
             arrow.SetActive(true);
-        } 
+        }
     }
     void SpawnArrowRight(Vector3 pos)
     {
@@ -480,7 +492,7 @@ public class GameManager : MonoBehaviour
             arrow.transform.position = pos;
             arrow.tag = "CurrentMoves";
             arrow.SetActive(true);
-        } 
+        }
     }
 
     void SpawnMoveBG(int current)
@@ -490,25 +502,25 @@ public class GameManager : MonoBehaviour
         int idx = 0;
         foreach (GameObject obj in objsCurrentMoves)
         {
-            if(idx++ != current)
+            if (idx++ != current)
                 continue;
-            if(playerMove[current] == move[current])
+            if (playerMove[current] == move[current])
             {
                 GameObject spawnInstance = Instantiate(moveBackgroundGood);
                 spawnInstance.transform.SetParent(obj.transform);
                 //spawnInstance.transform.position = obj.transform.position;
-                spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
+                spawnInstance.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z - 0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
-                spawnInstance.SetActive(true); 
+                spawnInstance.SetActive(true);
             }
             else
             {
                 GameObject spawnInstance = Instantiate(moveBackgroundBad);
                 spawnInstance.transform.SetParent(obj.transform);
                 //spawnInstance.transform.position = obj.transform.position;
-                spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
+                spawnInstance.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z - 0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
-                spawnInstance.SetActive(true); 
+                spawnInstance.SetActive(true);
             }
         }
     }
@@ -539,19 +551,19 @@ public class GameManager : MonoBehaviour
         */
 
         bool playEffectScore = false;
-        if(currentScore < GetPlayerScore())
+        if (currentScore < GetPlayerScore())
         {
-            currentScore+=50;
-            if(currentScore > GetPlayerScore())
+            currentScore += 50;
+            if (currentScore > GetPlayerScore())
                 currentScore = GetPlayerScore();
             playEffectScore = true;
         }
 
         TextMeshProUGUI textmeshPro = playerScoreTopText.GetComponent<TextMeshProUGUI>();
-        if(textmeshPro != null)
+        if (textmeshPro != null)
         {
             textmeshPro.SetText("{0}", currentScore);
-            if(playEffectScore)
+            if (playEffectScore)
             {
                 //playerScoreTopText.GetComponent<Animator>().Rebind();
                 //playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
@@ -559,10 +571,10 @@ public class GameManager : MonoBehaviour
         }
 
         TextMeshProUGUI textmesh1stPro = playerScore1stText.GetComponent<TextMeshProUGUI>();
-        if(textmesh1stPro != null)
+        if (textmesh1stPro != null)
         {
             textmesh1stPro.SetText("You: {0}", currentScore);
-            if(playEffectScore)
+            if (playEffectScore)
             {
                 playerScore1stText.GetComponent<Animator>().Rebind();
                 playerScore1stText.GetComponent<Animator>().Play("ScorePlayer");
@@ -574,10 +586,10 @@ public class GameManager : MonoBehaviour
     void RenderAIScore()
     {
         TextMeshProUGUI textmesh2ndPro = playerScore2ndText.GetComponent<TextMeshProUGUI>();
-        if(textmesh2ndPro != null)
+        if (textmesh2ndPro != null)
         {
             textmesh2ndPro.SetText("AI1: {0}", GetAIScore(1));
-            if(isAIChangedScore)
+            if (isAIChangedScore)
             {
                 playerScore2ndText.GetComponent<Animator>().Rebind();
                 playerScore2ndText.GetComponent<Animator>().Play("ScorePlayer");
@@ -585,10 +597,10 @@ public class GameManager : MonoBehaviour
         }
 
         TextMeshProUGUI textmesh3rdPro = playerScore3rdText.GetComponent<TextMeshProUGUI>();
-        if(textmesh3rdPro != null)
+        if (textmesh3rdPro != null)
         {
             textmesh3rdPro.SetText("AI2: {0}", GetAIScore(2));
-            if(isAIChangedScore)
+            if (isAIChangedScore)
             {
                 playerScore3rdText.GetComponent<Animator>().Rebind();
                 playerScore3rdText.GetComponent<Animator>().Play("ScorePlayer");
@@ -609,7 +621,7 @@ public class GameManager : MonoBehaviour
 
     int GetAIScore(int index)
     {
-        if(index == 1)
+        if (index == 1)
             return ai1Score;
         else
             return ai2Score;
@@ -623,7 +635,6 @@ public class GameManager : MonoBehaviour
     void moveSpeedBarSmooth()
     {
         SpeedBar.value += SpeedBmp * Time.deltaTime;
-        Debug.Log("progress bar = " + SpeedBar.value);
         if (SpeedBar.value >= 1.0f)
             SpeedBar.value = 0.0f;
     }
