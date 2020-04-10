@@ -17,7 +17,7 @@ public class CharacterController : MonoBehaviour
     //BreakdanceFootwork
     //GangnameStyle
 
-    private int danceStyle = 0;
+    private static int danceStyle = 0;
     private bool isPerfect = false;
 
     // Start is called before the first frame update
@@ -51,8 +51,13 @@ public class CharacterController : MonoBehaviour
         SetAnimation(state);
     }
 
-    public void Dance(int score)
+    public void Dance(GameManager.Result result)
     {
+        int randDance = Random.Range(1,4);
+        danceStyle = randDance;
+
+        if(result == GameManager.Result.Miss)
+            return;
         //Dance based from score;
         //20 - BoringDance
         //40 - HipHopDancing1
@@ -60,16 +65,22 @@ public class CharacterController : MonoBehaviour
         //80 - BreakdanceFootwork
         //100 - GangnameStyle
         state = (int)Animation.Dance;
-        if(score > 80)
-            danceStyle = 4;
-        else if(score > 60)
-            danceStyle = 3;
-        else if(score > 40)
-            danceStyle = 2;
-        else if(score > 20)
-            danceStyle = 1;
-        else
-            danceStyle = 0;
+        // if(score > 80)
+        //     danceStyle = 4;
+        // else if(score > 60)
+        //     danceStyle = 3;
+        // else if(score > 40)
+        //     danceStyle = 2;
+        // else if(score > 20)
+        //     danceStyle = 1;
+        // else
+        //     danceStyle = 0;
+        SetAnimation(state);
+    }
+
+    public void AIDance()
+    {
+        state = (int)Animation.Dance;
         SetAnimation(state);
     }
 
@@ -84,6 +95,7 @@ public class CharacterController : MonoBehaviour
     {
         this.GetComponent<Animator>().SetInteger("state", state);
         this.GetComponent<Animator>().SetInteger("danceStyle", danceStyle);
+        this.GetComponent<Animator>().SetFloat("Stype", (float)danceStyle); //thai 
         this.GetComponent<Animator>().SetBool("isPerfect", (danceStyle == 4)); //Perfect will dance Gangnam Style
     }
 
