@@ -36,7 +36,12 @@ public class GameManager : MonoBehaviour
     public Slider SpeedBar;
 
     public GameObject HitEffect;
+	
     private bool playerTurn = false;
+	
+    public List<AudioClip> effectSound;
+    AudioSource audioSource;
+	
 
     private int countNextMove = 0;
     private bool lockCountNextMove = true;
@@ -74,7 +79,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isRenderMove)
+        if (isRenderMove)
         {
             CheckInputMove();
             //StartRenderMovesEffect();
@@ -91,16 +96,20 @@ public class GameManager : MonoBehaviour
 
         currentLastTurnScore = playerLastTurnScore = currentScore = playerScore = ai1Score = ai2Score = 0;
         footParticle = GameObject.Find("FinishMove");
+
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
     }
 
     public void GetMove()
     {
         GenerateMove.instance.RandomMove();
         List<int> move = GenerateMove.instance.GetMove();
-        if(move.Count > 0)
+        if (move.Count > 0)
         {
             string moveList = "";
-            for(int i = 0; i < move.Count; i++)
+            for (int i = 0; i < move.Count; i++)
                 moveList += " " + ConvertMoveFromInt(move[i]);
             Debug.Log("GetMove: " + moveList);
         }
@@ -110,16 +119,16 @@ public class GameManager : MonoBehaviour
     {
         List<int> move = GenerateMove.instance.GetMove();
         Transform positionMove = GameObject.Find("MoveBar").transform;
-        if(move.Count > 0)
+        if (move.Count > 0)
         {
-            for(int i = 0; i < move.Count; i++)
+            for (int i = 0; i < move.Count; i++)
             {
-                float x = positionMove.position.x + 1*i - 1*(move.Count/2);
+                float x = positionMove.position.x + 1 * i - 1 * (move.Count / 2);
                 float y = positionMove.position.y;
                 float z = positionMove.position.z;
                 Vector3 position = new Vector3(x, y, z);
                 Direction dir = (Direction)move[i];
-                switch(dir)
+                switch (dir)
                 {
                     case Direction.Up:
                         SpawnArrowUp(position);
@@ -141,6 +150,7 @@ public class GameManager : MonoBehaviour
             }
             StartRenderMovesEffect();
 
+<<<<<<< HEAD
             // // Make all move sprites is transparent to fade in
             // startRenderMovesTime = Time.time;
             // GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
@@ -158,37 +168,72 @@ public class GameManager : MonoBehaviour
             //         Destroy(obj.transform.GetChild(0).gameObject);
             //     }
             // }
+=======
+            // Make all move sprites is transparent to fade in
+            startRenderMovesTime = Time.time;
+            GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
+            foreach (GameObject obj in objsCurrentMoves)
+            {
+                obj.GetComponent<SpriteRenderer>().color = new Color(
+                    obj.GetComponent<SpriteRenderer>().color.r,
+                    obj.GetComponent<SpriteRenderer>().color.g,
+                    obj.GetComponent<SpriteRenderer>().color.b,
+                    0);
+
+                // Remove old BG moves
+                if ((obj.transform.childCount > 0) && obj.transform.GetChild(0) != null)
+                {
+                    Destroy(obj.transform.GetChild(0).gameObject);
+                }
+            }
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         }
     }
 
     void CheckInputMove()
     {
         List<int> move = GenerateMove.instance.GetMove();
-        if(currentMove < move.Count)
+        if (currentMove < move.Count)
         {
+<<<<<<< HEAD
             bool CorrectMove = true;;
             if(Input.GetKeyDown(KeyCode.UpArrow))
+=======
+            if (Input.GetKeyUp(KeyCode.UpArrow))
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             {
                 //Debug.Log("PressUp");
                 playerMove.Add((int)Direction.Up);
                 CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
+<<<<<<< HEAD
             else if(Input.GetKeyDown(KeyCode.DownArrow))
+=======
+            else if (Input.GetKeyUp(KeyCode.DownArrow))
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             {
                 //Debug.Log("PressDown");
                 playerMove.Add((int)Direction.Down);
                 CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
+<<<<<<< HEAD
             else if(Input.GetKeyDown(KeyCode.LeftArrow))
+=======
+            else if (Input.GetKeyUp(KeyCode.LeftArrow))
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             {
                 //Debug.Log("PressLeft");
                 playerMove.Add((int)Direction.Left);
                 CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
+<<<<<<< HEAD
             else if(Input.GetKeyDown(KeyCode.RightArrow))
+=======
+            else if (Input.GetKeyUp(KeyCode.RightArrow))
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             {
                 //Debug.Log("PressRight");
                 playerMove.Add((int)Direction.Right);
@@ -234,9 +279,9 @@ public class GameManager : MonoBehaviour
                         score = ScoreBoard[(int)resultHit];
                         playerScoreTopText.GetComponent<Animator>().Rebind();
                         playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
-                        
+
                         HitEffect.transform.position = GameObject.Find("MoveBar").transform.position;
-                        HitEffect.GetComponent<ParticleSystem>().Play(); 
+                        HitEffect.GetComponent<ParticleSystem>().Play();
                     }
 
                     //int score = (int)(((float)match / move.Count) * 100);
@@ -354,14 +399,14 @@ public class GameManager : MonoBehaviour
         GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
         foreach (GameObject obj in objsCurrentMoves)
         {
-            obj.gameObject.SetActive(false); 
+            obj.gameObject.SetActive(false);
             obj.gameObject.Kill();
         }
 
         GameObject player = GameObject.Find("Player2");
         yield return new WaitForSeconds(delayTime);
-        
-        while(player.GetComponent<CharacterController>().IsDancing())
+
+        while (player.GetComponent<CharacterController>().IsDancing())
         {
             yield return new WaitForSeconds(0.1f); // wait until player dance is done
         }
@@ -395,8 +440,13 @@ public class GameManager : MonoBehaviour
 
     void StartRenderMovesEffect()
     {
+<<<<<<< HEAD
         //float effectTime = renderMovesEffectTime; //2 seconds to fade in
         //if((Time.time - startRenderMovesTime) <= effectTime)
+=======
+        float effectTime = renderMovesEffectTime; //2 seconds to fade in
+        if ((Time.time - startRenderMovesTime) <= effectTime)
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
             int idx = 0;
@@ -421,61 +471,83 @@ public class GameManager : MonoBehaviour
     void DisplayResult(Result resultHit)
     {
         GameObject result;
+<<<<<<< HEAD
         if(resultHit == Result.Perfect)
+=======
+        if (score > 80)
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Perfect");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[0];
             }
         }
+<<<<<<< HEAD
         else if(resultHit == Result.Great)
+=======
+        else if (score > 60)
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Great");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[1];
             }
         }
+<<<<<<< HEAD
         else if(resultHit == Result.Cool)
+=======
+        else if (score > 40)
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Cool");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[2];
             }
         }
+<<<<<<< HEAD
         else if(resultHit == Result.Bad)
+=======
+        else if (score > 20)
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Bad");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[3];
             }
         }
         else
         {
             result = GameObject.Find("Result_Miss");
-            if(result != null)
+            if (result != null)
             {
                 result.transform.localPosition = new Vector3(0, yResultOffset, 0);
                 result.GetComponent<SpriteRenderer>().enabled = true;
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
+                audioSource.clip = effectSound[4];
             }
         }
+        audioSource.Play();
     }
 
     void DisplayAIResult(GameObject obj, int resultScore)
@@ -483,28 +555,40 @@ public class GameManager : MonoBehaviour
         GameObject result;
         bool isPerfect = false;
 
+<<<<<<< HEAD
         if(resultScore == (int)Result.Perfect)
+=======
+        if (score > 80)
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
-           result = GameObject.Find("Result_Perfect");
-           isPerfect = true; // apply offset for special sprite
+            result = GameObject.Find("Result_Perfect");
+            isPerfect = true; // apply offset for special sprite
         }
+<<<<<<< HEAD
         else if(resultScore == (int)Result.Great)
             result = GameObject.Find("Result_Great");
         else if(resultScore == (int)Result.Cool)
             result = GameObject.Find("Result_Cool");
         else if(resultScore == (int)Result.Bad)
+=======
+        else if (score > 60)
+            result = GameObject.Find("Result_Great");
+        else if (score > 40)
+            result = GameObject.Find("Result_Cool");
+        else if (score > 20)
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             result = GameObject.Find("Result_Bad");
         else
             result = GameObject.Find("Result_Miss");
 
-        if(result != null)
+        if (result != null)
         {
             GameObject spawnInstance = Instantiate(result);
             spawnInstance.transform.SetParent(obj.transform);
             //if(isPerfect)
-                spawnInstance.transform.localPosition = new Vector3(0,yResultOffset + 0.2f,0);
+            spawnInstance.transform.localPosition = new Vector3(0, yResultOffset + 0.2f, 0);
             //else
-                //spawnInstance.transform.localPosition = Vector3.zero;
+            //spawnInstance.transform.localPosition = Vector3.zero;
             spawnInstance.tag = "AIResult";
             spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
         }
@@ -513,7 +597,7 @@ public class GameManager : MonoBehaviour
     string ConvertMoveFromInt(int move)
     {
         Direction dir = (Direction)move;
-        switch(dir)
+        switch (dir)
         {
             case Direction.Up:
                 return "Up";
@@ -533,10 +617,10 @@ public class GameManager : MonoBehaviour
         if (arrow != null)
         {
             arrow.transform.position = pos;
-            arrow.transform.transform.Rotate(new Vector3(0, 0, 90)); 
+            arrow.transform.transform.Rotate(new Vector3(0, 0, 90));
             arrow.tag = "CurrentMoves";
             arrow.SetActive(true);
-        } 
+        }
     }
     void SpawnArrowDown(Vector3 pos)
     {
@@ -544,10 +628,10 @@ public class GameManager : MonoBehaviour
         if (arrow != null)
         {
             arrow.transform.position = pos;
-            arrow.transform.transform.Rotate(new Vector3(0, 0, -90)); 
+            arrow.transform.transform.Rotate(new Vector3(0, 0, -90));
             arrow.tag = "CurrentMoves";
             arrow.SetActive(true);
-        } 
+        }
     }
     void SpawnArrowLeft(Vector3 pos)
     {
@@ -558,7 +642,7 @@ public class GameManager : MonoBehaviour
             arrow.transform.transform.Rotate(new Vector3(0, 0, 180));
             arrow.tag = "CurrentMoves";
             arrow.SetActive(true);
-        } 
+        }
     }
     void SpawnArrowRight(Vector3 pos)
     {
@@ -568,7 +652,7 @@ public class GameManager : MonoBehaviour
             arrow.transform.position = pos;
             arrow.tag = "CurrentMoves";
             arrow.SetActive(true);
-        } 
+        }
     }
 
     bool SpawnMoveBG(int current)
@@ -578,27 +662,35 @@ public class GameManager : MonoBehaviour
         int idx = 0;
         foreach (GameObject obj in objsCurrentMoves)
         {
-            if(idx++ != current)
+            if (idx++ != current)
                 continue;
-            if(playerMove[current] == move[current])
+            if (playerMove[current] == move[current])
             {
                 GameObject spawnInstance = Instantiate(moveBackgroundGood);
                 spawnInstance.transform.SetParent(obj.transform);
                 //spawnInstance.transform.position = obj.transform.position;
-                spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
+                spawnInstance.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z - 0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
+<<<<<<< HEAD
                 spawnInstance.SetActive(true); 
                 return true;
+=======
+                spawnInstance.SetActive(true);
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             }
             else
             {
                 GameObject spawnInstance = Instantiate(moveBackgroundBad);
                 spawnInstance.transform.SetParent(obj.transform);
                 //spawnInstance.transform.position = obj.transform.position;
-                spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
+                spawnInstance.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z - 0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
+<<<<<<< HEAD
                 spawnInstance.SetActive(true); 
                 return false;
+=======
+                spawnInstance.SetActive(true);
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             }
         }
         return false;
@@ -630,19 +722,19 @@ public class GameManager : MonoBehaviour
         */
 
         bool playEffectScore = false;
-        if(currentScore < GetPlayerScore())
+        if (currentScore < GetPlayerScore())
         {
-            currentScore+=50;
-            if(currentScore > GetPlayerScore())
+            currentScore += 50;
+            if (currentScore > GetPlayerScore())
                 currentScore = GetPlayerScore();
             playEffectScore = true;
         }
 
         TextMeshProUGUI textmeshPro = playerScoreTopText.GetComponent<TextMeshProUGUI>();
-        if(textmeshPro != null)
+        if (textmeshPro != null)
         {
             textmeshPro.SetText("{0}", currentScore);
-            if(playEffectScore)
+            if (playEffectScore)
             {
                 //playerScoreTopText.GetComponent<Animator>().Rebind();
                 //playerScoreTopText.GetComponent<Animator>().Play("ScorePlayer");
@@ -650,10 +742,10 @@ public class GameManager : MonoBehaviour
         }
 
         TextMeshProUGUI textmesh1stPro = playerScore1stText.GetComponent<TextMeshProUGUI>();
-        if(textmesh1stPro != null)
+        if (textmesh1stPro != null)
         {
             textmesh1stPro.SetText("You: {0}", currentScore);
-            if(playEffectScore)
+            if (playEffectScore)
             {
                 playerScore1stText.GetComponent<Animator>().Rebind();
                 playerScore1stText.GetComponent<Animator>().Play("ScorePlayer");
@@ -665,10 +757,10 @@ public class GameManager : MonoBehaviour
     void RenderAIScore()
     {
         TextMeshProUGUI textmesh2ndPro = playerScore2ndText.GetComponent<TextMeshProUGUI>();
-        if(textmesh2ndPro != null)
+        if (textmesh2ndPro != null)
         {
             textmesh2ndPro.SetText("AI1: {0}", GetAIScore(1));
-            if(isAIChangedScore)
+            if (isAIChangedScore)
             {
                 playerScore2ndText.GetComponent<Animator>().Rebind();
                 playerScore2ndText.GetComponent<Animator>().Play("ScorePlayer");
@@ -676,10 +768,10 @@ public class GameManager : MonoBehaviour
         }
 
         TextMeshProUGUI textmesh3rdPro = playerScore3rdText.GetComponent<TextMeshProUGUI>();
-        if(textmesh3rdPro != null)
+        if (textmesh3rdPro != null)
         {
             textmesh3rdPro.SetText("AI2: {0}", GetAIScore(2));
-            if(isAIChangedScore)
+            if (isAIChangedScore)
             {
                 playerScore3rdText.GetComponent<Animator>().Rebind();
                 playerScore3rdText.GetComponent<Animator>().Play("ScorePlayer");
@@ -700,7 +792,7 @@ public class GameManager : MonoBehaviour
 
     int GetAIScore(int index)
     {
-        if(index == 1)
+        if (index == 1)
             return ai1Score;
         else
             return ai2Score;
@@ -713,6 +805,7 @@ public class GameManager : MonoBehaviour
 
     void moveSpeedBarSmooth()
     {
+<<<<<<< HEAD
         float percent = SpeedBar.GetComponent<LevelRthymController>().getPercentBar();
         //SpeedBar.value += SpeedBmp * Time.deltaTime;
         Debug.Log("progress bar = " + SpeedBar.value);
@@ -787,6 +880,11 @@ public class GameManager : MonoBehaviour
         ai1Score += AI1Score;
         ai2Score += AI2Score;
         isAIChangedScore = true;
+=======
+        SpeedBar.value += SpeedBmp * Time.deltaTime;
+        if (SpeedBar.value >= 1.0f)
+            SpeedBar.value = 0.0f;
+>>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
     }
 
     Result IsResult()
