@@ -166,34 +166,42 @@ public class GameManager : MonoBehaviour
         List<int> move = GenerateMove.instance.GetMove();
         if(currentMove < move.Count)
         {
-            if(Input.GetKeyUp(KeyCode.UpArrow))
+            bool CorrectMove = true;;
+            if(Input.GetKeyDown(KeyCode.UpArrow))
             {
                 //Debug.Log("PressUp");
                 playerMove.Add((int)Direction.Up);
-                SpawnMoveBG(currentMove);
+                CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
-            else if(Input.GetKeyUp(KeyCode.DownArrow))
+            else if(Input.GetKeyDown(KeyCode.DownArrow))
             {
                 //Debug.Log("PressDown");
                 playerMove.Add((int)Direction.Down);
-                SpawnMoveBG(currentMove);
+                CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
-            else if(Input.GetKeyUp(KeyCode.LeftArrow))
+            else if(Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 //Debug.Log("PressLeft");
                 playerMove.Add((int)Direction.Left);
-                SpawnMoveBG(currentMove);
+                CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
-            else if(Input.GetKeyUp(KeyCode.RightArrow))
+            else if(Input.GetKeyDown(KeyCode.RightArrow))
             {
                 //Debug.Log("PressRight");
                 playerMove.Add((int)Direction.Right);
-                SpawnMoveBG(currentMove);
+                CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
+
+            if (!CorrectMove)
+            {
+                resetCurrentMove();
+            }
+            
+            
 
             // Test music
             //if(currentMove > 0)
@@ -201,7 +209,7 @@ public class GameManager : MonoBehaviour
             //    SoundManager.instance.PlayMusic();
             //}
         }
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isShowMove)
         {
             //playerTurn = false;
             Result resultHit = IsResult();
@@ -249,6 +257,13 @@ public class GameManager : MonoBehaviour
                     //playerTurn = true;
                     resetForNextMove();
                 }
+            }
+            else
+            {
+                resetForNextMove();
+                playerDance(Result.Miss);
+                DisplayResult(Result.Miss);
+                //AIDance();
             }
         }
         // Make a coroutine to start new move after 2 seconds
@@ -556,7 +571,7 @@ public class GameManager : MonoBehaviour
         } 
     }
 
-    void SpawnMoveBG(int current)
+    bool SpawnMoveBG(int current)
     {
         List<int> move = GenerateMove.instance.GetMove();
         GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
@@ -573,6 +588,7 @@ public class GameManager : MonoBehaviour
                 spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
                 spawnInstance.SetActive(true); 
+                return true;
             }
             else
             {
@@ -582,8 +598,10 @@ public class GameManager : MonoBehaviour
                 spawnInstance.transform.position = new Vector3(obj.transform.position.x,obj.transform.position.y,obj.transform.position.z-0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
                 spawnInstance.SetActive(true); 
+                return false;
             }
         }
+        return false;
     }
 
     void RenderTopScore()
@@ -708,9 +726,9 @@ public class GameManager : MonoBehaviour
                     {
                         HitMissResult();
                     }
-                    AIDance();
                     playerTurn = false;
                 }
+                    
                 countNextMove++;
                 lockCountNextMove  = true;
             }
@@ -726,6 +744,22 @@ public class GameManager : MonoBehaviour
             NextMove();
             countNextMove = 0;
         }
+    }
+
+    void resetCurrentMove()
+    {
+        // Remove old BG moves
+        GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
+        foreach (GameObject obj in objsCurrentMoves)
+        {
+            // Remove old BG moves
+            if((obj.transform.childCount > 0) && obj.transform.GetChild(0) != null)
+            {
+                Destroy(obj.transform.GetChild(0).gameObject);
+            }
+        }
+        playerMove.Clear();
+        currentMove = 0;
     }
 
     void HitMissResult()
