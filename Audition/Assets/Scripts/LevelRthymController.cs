@@ -29,11 +29,12 @@ public class LevelRthymController : MonoBehaviour
     float blinkTimeHolder;
     bool isAlphaMax;
 
+    public static LevelRthymController instance;
 
 
     private void Awake()
     {
-        //instance = this;
+        
         _startTime = Time.time;
         isSliding = false;
         _rhythmSlider = GetComponent<Slider>();
@@ -42,6 +43,17 @@ public class LevelRthymController : MonoBehaviour
         txtLevelNum.text = levelHolder.ToString();
         _rhythmSlider.enabled = false;
         isAlphaMax = true;
+        instance = this;
+    }
+
+    public void setLevelTimeBar(int level)
+    {
+        levelHolder = level;
+    }
+
+    public int getLevelHolder()
+    {
+        return levelHolder;
     }
 
     void GetBpM()
@@ -120,6 +132,14 @@ public class LevelRthymController : MonoBehaviour
             levelHolder++;
             txtLevelNum.text = levelHolder.ToString();
         }
+
+        if(levelHolder >= 10 && levelCount >= 1)
+        {
+            levelHolder = 6;
+            levelCount = 0;
+            txtLevelNum.text = levelHolder.ToString();
+        }
+
         _rhythmSlider.value = t;
 
     }
@@ -129,7 +149,7 @@ public class LevelRthymController : MonoBehaviour
     }
     void UpdateLevel()
     {
-        if (levelCount == 6 || levelCount == 7)
+        if (levelHolder == 10)
         {
             objLevelFinish.SetActive(true);
             objLevel.SetActive(false);

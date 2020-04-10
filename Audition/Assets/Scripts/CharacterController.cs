@@ -55,6 +55,11 @@ public class CharacterController : MonoBehaviour
     {
         int randDance = Random.Range(1,4);
         danceStyle = randDance;
+        if(LevelRthymController.instance.getLevelHolder() >= 10)
+        {
+            danceStyle = 5;
+        }
+        this.GetComponent<Animator>().Rebind();
 
         if(result == GameManager.Result.Miss)
             return;
@@ -81,6 +86,7 @@ public class CharacterController : MonoBehaviour
     public void AIDance()
     {
         state = (int)Animation.Dance;
+        this.GetComponent<Animator>().Rebind();
         SetAnimation(state);
     }
 

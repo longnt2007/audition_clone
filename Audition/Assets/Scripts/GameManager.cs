@@ -102,9 +102,9 @@ public class GameManager : MonoBehaviour
         audioSource.loop = false;
     }
 
-    public void GetMove()
+    public void GetMove(int level)
     {
-        GenerateMove.instance.RandomMove();
+        GenerateMove.instance.RandomMove(level);
         List<int> move = GenerateMove.instance.GetMove();
         if (move.Count > 0)
         {
@@ -150,7 +150,6 @@ public class GameManager : MonoBehaviour
             }
             StartRenderMovesEffect();
 
-<<<<<<< HEAD
             // // Make all move sprites is transparent to fade in
             // startRenderMovesTime = Time.time;
             // GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
@@ -168,25 +167,6 @@ public class GameManager : MonoBehaviour
             //         Destroy(obj.transform.GetChild(0).gameObject);
             //     }
             // }
-=======
-            // Make all move sprites is transparent to fade in
-            startRenderMovesTime = Time.time;
-            GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
-            foreach (GameObject obj in objsCurrentMoves)
-            {
-                obj.GetComponent<SpriteRenderer>().color = new Color(
-                    obj.GetComponent<SpriteRenderer>().color.r,
-                    obj.GetComponent<SpriteRenderer>().color.g,
-                    obj.GetComponent<SpriteRenderer>().color.b,
-                    0);
-
-                // Remove old BG moves
-                if ((obj.transform.childCount > 0) && obj.transform.GetChild(0) != null)
-                {
-                    Destroy(obj.transform.GetChild(0).gameObject);
-                }
-            }
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         }
     }
 
@@ -195,45 +175,29 @@ public class GameManager : MonoBehaviour
         List<int> move = GenerateMove.instance.GetMove();
         if (currentMove < move.Count)
         {
-<<<<<<< HEAD
             bool CorrectMove = true;;
             if(Input.GetKeyDown(KeyCode.UpArrow))
-=======
-            if (Input.GetKeyUp(KeyCode.UpArrow))
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             {
                 //Debug.Log("PressUp");
                 playerMove.Add((int)Direction.Up);
                 CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
-<<<<<<< HEAD
             else if(Input.GetKeyDown(KeyCode.DownArrow))
-=======
-            else if (Input.GetKeyUp(KeyCode.DownArrow))
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             {
                 //Debug.Log("PressDown");
                 playerMove.Add((int)Direction.Down);
                 CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
-<<<<<<< HEAD
             else if(Input.GetKeyDown(KeyCode.LeftArrow))
-=======
-            else if (Input.GetKeyUp(KeyCode.LeftArrow))
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             {
                 //Debug.Log("PressLeft");
                 playerMove.Add((int)Direction.Left);
                 CorrectMove = SpawnMoveBG(currentMove);
                 currentMove++;
             }
-<<<<<<< HEAD
             else if(Input.GetKeyDown(KeyCode.RightArrow))
-=======
-            else if (Input.GetKeyUp(KeyCode.RightArrow))
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             {
                 //Debug.Log("PressRight");
                 playerMove.Add((int)Direction.Right);
@@ -308,7 +272,7 @@ public class GameManager : MonoBehaviour
                 resetForNextMove();
                 playerDance(Result.Miss);
                 DisplayResult(Result.Miss);
-                //AIDance();
+                AIDance();
             }
         }
         // Make a coroutine to start new move after 2 seconds
@@ -376,7 +340,7 @@ public class GameManager : MonoBehaviour
             obj.GetComponent<SpriteRenderer>().enabled = false;
             obj.transform.localPosition = Vector3.zero;
         }
-        GetMove();
+        GetMove(SpeedBar.GetComponent<LevelRthymController>().getLevelHolder());
         RenderMove();
 
         // Destroy AI Result objects
@@ -420,7 +384,7 @@ public class GameManager : MonoBehaviour
         }
 
         // After delayTime -> make new Move
-        GetMove();
+        GetMove(1);
         RenderMove();
 
         // Stop AI animation
@@ -440,13 +404,8 @@ public class GameManager : MonoBehaviour
 
     void StartRenderMovesEffect()
     {
-<<<<<<< HEAD
         //float effectTime = renderMovesEffectTime; //2 seconds to fade in
         //if((Time.time - startRenderMovesTime) <= effectTime)
-=======
-        float effectTime = renderMovesEffectTime; //2 seconds to fade in
-        if ((Time.time - startRenderMovesTime) <= effectTime)
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
             int idx = 0;
@@ -471,11 +430,7 @@ public class GameManager : MonoBehaviour
     void DisplayResult(Result resultHit)
     {
         GameObject result;
-<<<<<<< HEAD
         if(resultHit == Result.Perfect)
-=======
-        if (score > 80)
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Perfect");
             if (result != null)
@@ -487,11 +442,7 @@ public class GameManager : MonoBehaviour
                 audioSource.clip = effectSound[0];
             }
         }
-<<<<<<< HEAD
         else if(resultHit == Result.Great)
-=======
-        else if (score > 60)
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Great");
             if (result != null)
@@ -503,11 +454,7 @@ public class GameManager : MonoBehaviour
                 audioSource.clip = effectSound[1];
             }
         }
-<<<<<<< HEAD
         else if(resultHit == Result.Cool)
-=======
-        else if (score > 40)
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Cool");
             if (result != null)
@@ -519,11 +466,7 @@ public class GameManager : MonoBehaviour
                 audioSource.clip = effectSound[2];
             }
         }
-<<<<<<< HEAD
         else if(resultHit == Result.Bad)
-=======
-        else if (score > 20)
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Bad");
             if (result != null)
@@ -545,6 +488,11 @@ public class GameManager : MonoBehaviour
                 result.GetComponent<Animator>().Rebind();
                 result.GetComponent<Animator>().Play("good");
                 audioSource.clip = effectSound[4];
+
+
+                GameObject player = GameObject.Find("Player2");
+                player.GetComponent<CharacterController>().Dance(resultHit);
+                player.GetComponent<CharacterController>().Idle(true);
             }
         }
         audioSource.Play();
@@ -555,34 +503,29 @@ public class GameManager : MonoBehaviour
         GameObject result;
         bool isPerfect = false;
 
-<<<<<<< HEAD
         if(resultScore == (int)Result.Perfect)
-=======
-        if (score > 80)
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
         {
             result = GameObject.Find("Result_Perfect");
             isPerfect = true; // apply offset for special sprite
         }
-<<<<<<< HEAD
         else if(resultScore == (int)Result.Great)
             result = GameObject.Find("Result_Great");
         else if(resultScore == (int)Result.Cool)
             result = GameObject.Find("Result_Cool");
         else if(resultScore == (int)Result.Bad)
-=======
-        else if (score > 60)
-            result = GameObject.Find("Result_Great");
-        else if (score > 40)
-            result = GameObject.Find("Result_Cool");
-        else if (score > 20)
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             result = GameObject.Find("Result_Bad");
         else
+        {
             result = GameObject.Find("Result_Miss");
+        }
 
         if (result != null)
         {
+            if (resultScore == (int)Result.Miss)
+            {
+                //AIController.instance.ControlAI(obj.get)
+                //obj.GetComponent<CharacterController>().Idle(true);
+            }
             GameObject spawnInstance = Instantiate(result);
             spawnInstance.transform.SetParent(obj.transform);
             //if(isPerfect)
@@ -671,12 +614,8 @@ public class GameManager : MonoBehaviour
                 //spawnInstance.transform.position = obj.transform.position;
                 spawnInstance.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z - 0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
-<<<<<<< HEAD
                 spawnInstance.SetActive(true); 
                 return true;
-=======
-                spawnInstance.SetActive(true);
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             }
             else
             {
@@ -685,12 +624,8 @@ public class GameManager : MonoBehaviour
                 //spawnInstance.transform.position = obj.transform.position;
                 spawnInstance.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z - 0.1f);
                 spawnInstance.GetComponent<SpriteRenderer>().enabled = true;
-<<<<<<< HEAD
                 spawnInstance.SetActive(true); 
                 return false;
-=======
-                spawnInstance.SetActive(true);
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
             }
         }
         return false;
@@ -805,7 +740,6 @@ public class GameManager : MonoBehaviour
 
     void moveSpeedBarSmooth()
     {
-<<<<<<< HEAD
         float percent = SpeedBar.GetComponent<LevelRthymController>().getPercentBar();
         //SpeedBar.value += SpeedBmp * Time.deltaTime;
         Debug.Log("progress bar = " + SpeedBar.value);
@@ -860,6 +794,7 @@ public class GameManager : MonoBehaviour
     {
         DisplayResult(Result.Miss);
         playerDance(Result.Miss);
+        AIDance();
         resetForNextMove();
         
     }
@@ -880,11 +815,6 @@ public class GameManager : MonoBehaviour
         ai1Score += AI1Score;
         ai2Score += AI2Score;
         isAIChangedScore = true;
-=======
-        SpeedBar.value += SpeedBmp * Time.deltaTime;
-        if (SpeedBar.value >= 1.0f)
-            SpeedBar.value = 0.0f;
->>>>>>> ed539d1a0af8fd7ac367388fdb6b1b8bf10bb84e
     }
 
     Result IsResult()

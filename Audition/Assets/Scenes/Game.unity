@@ -2772,6 +2772,12 @@ MonoBehaviour:
   SpeedBmp: 0.5
   SpeedBar: {fileID: 176046780}
   HitEffect: {fileID: 1049561679}
+  effectSound:
+  - {fileID: 8300000, guid: c2db69720e8bb4e4b9515f854eaae2a6, type: 3}
+  - {fileID: 8300000, guid: 411a5c4432061144685eb7dad06fb759, type: 3}
+  - {fileID: 8300000, guid: 7dc01718c2ebb27419cfaf6f939fe258, type: 3}
+  - {fileID: 8300000, guid: 94b837f86b35ed24c8fbc7576b55e9fe, type: 3}
+  - {fileID: 8300000, guid: 37f5f38e0e49f684fae85671e9f32071, type: 3}
 --- !u!4 &1826988661
 Transform:
   m_ObjectHideFlags: 0

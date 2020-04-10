@@ -29,14 +29,13 @@ public class GenerateMove : MonoBehaviour
         return move;
     }
 
-    public void RandomMove()
+    public void RandomMove(int level)
     {
         Debug.Log("GenerateMove::RandomMove");
         move.Clear();
-        move.Add(Random.Range(1,5));
-        move.Add(Random.Range(1,5));
-        move.Add(Random.Range(1,5));
-        move.Add(Random.Range(1,5));
-        move.Add(Random.Range(1,5));
+        for (int i = 0; i < level; i++)
+        {
+            move.Add(Random.Range(1,5));
+        }
     }
 }
