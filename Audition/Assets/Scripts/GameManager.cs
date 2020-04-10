@@ -36,8 +36,13 @@ public class GameManager : MonoBehaviour
     public Slider SpeedBar;
 
     public GameObject HitEffect;
+    private bool playerTurn = false;
 
-    enum Result
+    private int countNextMove = 0;
+    private bool lockCountNextMove = true;
+    private bool isShowMove = false;
+
+    public enum Result
     {
         Perfect,
         Great,
@@ -72,7 +77,7 @@ public class GameManager : MonoBehaviour
         if(isRenderMove)
         {
             CheckInputMove();
-            StartRenderMovesEffect();
+            //StartRenderMovesEffect();
             RenderTopScore();
             RenderAIScore();
         }
@@ -81,8 +86,8 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        GetMove();
-        RenderMove();
+        //GetMove();
+        //RenderMove();
 
         currentLastTurnScore = playerLastTurnScore = currentScore = playerScore = ai1Score = ai2Score = 0;
         footParticle = GameObject.Find("FinishMove");
@@ -134,24 +139,25 @@ public class GameManager : MonoBehaviour
                 currentMove = 0;
                 playerMove = new List<int>();
             }
+            StartRenderMovesEffect();
 
-            // Make all move sprites is transparent to fade in
-            startRenderMovesTime = Time.time;
-            GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
-            foreach (GameObject obj in objsCurrentMoves)
-            {
-                obj.GetComponent<SpriteRenderer>().color = new Color(
-                    obj.GetComponent<SpriteRenderer>().color.r,
-                    obj.GetComponent<SpriteRenderer>().color.g,
-                    obj.GetComponent<SpriteRenderer>().color.b,
-                    0);
+            // // Make all move sprites is transparent to fade in
+            // startRenderMovesTime = Time.time;
+            // GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
+            // foreach (GameObject obj in objsCurrentMoves)
+            // {
+            //     obj.GetComponent<SpriteRenderer>().color = new Color(
+            //         obj.GetComponent<SpriteRenderer>().color.r,
+            //         obj.GetComponent<SpriteRenderer>().color.g,
+            //         obj.GetComponent<SpriteRenderer>().color.b,
+            //         0);
 
-                // Remove old BG moves
-                if((obj.transform.childCount > 0) && obj.transform.GetChild(0) != null)
-                {
-                    Destroy(obj.transform.GetChild(0).gameObject);
-                }
-            }
+            //     // Remove old BG moves
+            //     if((obj.transform.childCount > 0) && obj.transform.GetChild(0) != null)
+            //     {
+            //         Destroy(obj.transform.GetChild(0).gameObject);
+            //     }
+            // }
         }
     }
 
@@ -197,6 +203,7 @@ public class GameManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            //playerTurn = false;
             Result resultHit = IsResult();
             if (currentMove >= move.Count)
             {
@@ -225,38 +232,104 @@ public class GameManager : MonoBehaviour
                     }
 
                     //int score = (int)(((float)match / move.Count) * 100);
-                    DisplayResult(score);
+                    DisplayResult(resultHit);
 
-                    // Make player start to dance
-                    GameObject player = GameObject.Find("Player2");
-                    player.GetComponent<CharacterController>().Dance(score);
+                    playerDance(resultHit);
                     // hide particle at player foot
                     footParticle.SetActive(false);
 
                     // Random AI Score
-                    int AI1Score = Random.Range(1, 100);
-                    int AI2Score = Random.Range(1, 100);
-                    // Control AI Dance
-                    AIController.instance.ControlAIDance(1, AI1Score);
-                    AIController.instance.ControlAIDance(2, AI2Score);
-                    // Display AI Score
-                    DisplayAIResult(AIController.instance.GetAIResultPos(1), AI1Score);
-                    DisplayAIResult(AIController.instance.GetAIResultPos(2), AI2Score);
 
-                    // Make a coroutine to start new move after 2 seconds
-                    IEnumerator coroutine = StartNewMove(0.1f);
-                    StartCoroutine(coroutine);
+                    AIDance();
 
                     // Increase score for players
                     playerLastTurnScore = score;
                     playerScore += score;
-                    ai1Score += AI1Score;
-                    ai2Score += AI2Score;
-                    isAIChangedScore = true;
-                    Debug.Log("PlayerMove: " + playerMoveList + " Result score: " + score + " AI1 score: " + AI1Score + " AI2 score: " + AI2Score);
+                    
+                    //playerTurn = true;
+                    resetForNextMove();
                 }
             }
         }
+        // Make a coroutine to start new move after 2 seconds
+        // if (currentMove >= move.Count && playerTurn)
+        // {
+        //     IEnumerator coroutine = StartNewMove(0.1f);
+        //     StartCoroutine(coroutine);
+        // }
+    }
+    void playerDance(Result resultHit)
+    {
+        // Make player start to dance
+        GameObject player = GameObject.Find("Player2");
+        player.GetComponent<CharacterController>().Dance(resultHit);
+    }
+
+    void resetForNextMove()
+    {
+        GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
+        foreach (GameObject obj in objsCurrentMoves)
+        {
+            obj.gameObject.SetActive(false); 
+            obj.gameObject.Kill();
+        }
+        // After delayTime -> reset game
+        GameObject[] objsResultMoves = GameObject.FindGameObjectsWithTag("ResultMoves");
+        foreach (GameObject obj in objsResultMoves)
+        {
+            obj.GetComponent<SpriteRenderer>().enabled = false;
+            obj.transform.localPosition = Vector3.zero;
+        }
+
+        // Make all move sprites is transparent to fade in
+            startRenderMovesTime = Time.time;
+            //GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
+            foreach (GameObject obj in objsCurrentMoves)
+            {
+                obj.GetComponent<SpriteRenderer>().color = new Color(
+                    obj.GetComponent<SpriteRenderer>().color.r,
+                    obj.GetComponent<SpriteRenderer>().color.g,
+                    obj.GetComponent<SpriteRenderer>().color.b,
+                    0);
+
+                // Remove old BG moves
+                if((obj.transform.childCount > 0) && obj.transform.GetChild(0) != null)
+                {
+                    Destroy(obj.transform.GetChild(0).gameObject);
+                }
+            }
+        isShowMove = false;
+    }
+
+    void NextMove()
+    {
+        GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
+        foreach (GameObject obj in objsCurrentMoves)
+        {
+            obj.gameObject.SetActive(false); 
+            obj.gameObject.Kill();
+        }
+        // After delayTime -> reset game
+        GameObject[] objsResultMoves = GameObject.FindGameObjectsWithTag("ResultMoves");
+        foreach (GameObject obj in objsResultMoves)
+        {
+            obj.GetComponent<SpriteRenderer>().enabled = false;
+            obj.transform.localPosition = Vector3.zero;
+        }
+        GetMove();
+        RenderMove();
+
+        // Destroy AI Result objects
+        GameObject[] objsAIResult = GameObject.FindGameObjectsWithTag("AIResult");
+        foreach (GameObject obj in objsAIResult)
+        {
+            Destroy(obj);
+        }
+
+        //show particle at player foot
+        footParticle.SetActive(true);
+
+        isShowMove = true;
     }
 
     IEnumerator StartNewMove(float delayTime)
@@ -307,8 +380,8 @@ public class GameManager : MonoBehaviour
 
     void StartRenderMovesEffect()
     {
-        float effectTime = renderMovesEffectTime; //2 seconds to fade in
-        if((Time.time - startRenderMovesTime) <= effectTime)
+        //float effectTime = renderMovesEffectTime; //2 seconds to fade in
+        //if((Time.time - startRenderMovesTime) <= effectTime)
         {
             GameObject[] objsCurrentMoves = GameObject.FindGameObjectsWithTag("CurrentMoves");
             int idx = 0;
@@ -330,10 +403,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void DisplayResult(int score)
+    void DisplayResult(Result resultHit)
     {
         GameObject result;
-        if(score > 80)
+        if(resultHit == Result.Perfect)
         {
             result = GameObject.Find("Result_Perfect");
             if(result != null)
@@ -344,7 +417,7 @@ public class GameManager : MonoBehaviour
                 result.GetComponent<Animator>().Play("good");
             }
         }
-        else if(score > 60)
+        else if(resultHit == Result.Great)
         {
             result = GameObject.Find("Result_Great");
             if(result != null)
@@ -355,7 +428,7 @@ public class GameManager : MonoBehaviour
                 result.GetComponent<Animator>().Play("good");
             }
         }
-        else if(score > 40)
+        else if(resultHit == Result.Cool)
         {
             result = GameObject.Find("Result_Cool");
             if(result != null)
@@ -366,7 +439,7 @@ public class GameManager : MonoBehaviour
                 result.GetComponent<Animator>().Play("good");
             }
         }
-        else if(score > 20)
+        else if(resultHit == Result.Bad)
         {
             result = GameObject.Find("Result_Bad");
             if(result != null)
@@ -390,21 +463,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void DisplayAIResult(GameObject obj, int score)
+    void DisplayAIResult(GameObject obj, int resultScore)
     {
         GameObject result;
         bool isPerfect = false;
 
-        if(score > 80)
+        if(resultScore == (int)Result.Perfect)
         {
            result = GameObject.Find("Result_Perfect");
            isPerfect = true; // apply offset for special sprite
         }
-        else if(score > 60)
+        else if(resultScore == (int)Result.Great)
             result = GameObject.Find("Result_Great");
-        else if(score > 40)
+        else if(resultScore == (int)Result.Cool)
             result = GameObject.Find("Result_Cool");
-        else if(score > 20)
+        else if(resultScore == (int)Result.Bad)
             result = GameObject.Find("Result_Bad");
         else
             result = GameObject.Find("Result_Miss");
@@ -624,8 +697,61 @@ public class GameManager : MonoBehaviour
     {
         SpeedBar.value += SpeedBmp * Time.deltaTime;
         Debug.Log("progress bar = " + SpeedBar.value);
+        if(SpeedBar.value > 0.88f)
+        {
+            
+            if(!lockCountNextMove)
+            {
+                if(playerTurn && isShowMove)
+                {
+                    if(currentMove < GenerateMove.instance.GetMove().Count)
+                    {
+                        HitMissResult();
+                    }
+                    AIDance();
+                    playerTurn = false;
+                }
+                countNextMove++;
+                lockCountNextMove  = true;
+            }
+        }
         if (SpeedBar.value >= 1.0f)
+        {
             SpeedBar.value = 0.0f;
+            lockCountNextMove = false;
+            playerTurn = true;
+        }
+        if(countNextMove >= 2)
+        {
+            NextMove();
+            countNextMove = 0;
+        }
+    }
+
+    void HitMissResult()
+    {
+        DisplayResult(Result.Miss);
+        playerDance(Result.Miss);
+        resetForNextMove();
+        
+    }
+
+    void AIDance()
+    {
+        int randScoreAI1 = Random.Range(0,ScoreBoard.Length);
+        int randScoreAI2 = Random.Range(0,ScoreBoard.Length);
+                    
+        int AI1Score = ScoreBoard[randScoreAI1];
+        int AI2Score = ScoreBoard[randScoreAI2];
+                    // Control AI Dance
+        AIController.instance.ControlAIDance(1, (Result)randScoreAI1);
+        AIController.instance.ControlAIDance(2, (Result)randScoreAI2);
+                    // Display AI Score
+        DisplayAIResult(AIController.instance.GetAIResultPos(1), randScoreAI1);
+        DisplayAIResult(AIController.instance.GetAIResultPos(2), randScoreAI2);
+        ai1Score += AI1Score;
+        ai2Score += AI2Score;
+        isAIChangedScore = true;
     }
 
     Result IsResult()

@@ -20,7 +20,8 @@ public class AnimationController : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         //Debug.Log("AnimationController::OnStateExit");
-        animator.SetInteger("state", 0);
+        if(stateInfo.IsName("DanceStype"))
+            animator.SetInteger("state", 0);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()
